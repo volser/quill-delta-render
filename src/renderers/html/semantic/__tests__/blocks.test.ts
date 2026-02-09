@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { renderDelta } from './test-helpers';
+import { renderDelta, renderDeltaWithMerger } from './test-helpers';
 
 describe('SemanticHtmlRenderer integration: blocks', () => {
   it('should render a paragraph', () => {
@@ -94,5 +94,46 @@ describe('SemanticHtmlRenderer integration: blocks', () => {
       ops: [{ insert: 'text' }, { insert: '\n', attributes: { indent: 1, align: 'right' } }],
     });
     expect(html).toBe('<p class="ql-indent-1 ql-align-right">text</p>');
+  });
+});
+
+describe('SemanticHtmlRenderer integration: multi-line code block merging', () => {
+  it('should merge consecutive code blocks into one pre with newlines', () => {
+    const html = renderDeltaWithMerger({
+      ops: [
+        { insert: 'line 1' },
+        { insert: '\n', attributes: { 'code-block': true } },
+        { insert: 'line 2' },
+        { insert: '\n', attributes: { 'code-block': true } },
+        { insert: 'line 3' },
+        { insert: '\n', attributes: { 'code-block': true } },
+      ],
+    });
+    expect(html).toContain('<pre');
+    // Only one pre block (merged)
+    expect(html.match(/<pre/g)?.length).toBe(1);
+    expect(html).toContain('line 1');
+    expect(html).toContain('line 2');
+    expect(html).toContain('line 3');
+  });
+
+  it('should HTML-encode content inside code blocks', () => {
+    const html = renderDeltaWithMerger({
+      ops: [
+        { insert: '<p>line 1</p>' },
+        { insert: '\n', attributes: { 'code-block': true } },
+        { insert: '<p>line 2</p>' },
+        { insert: '\n', attributes: { 'code-block': true } },
+        { insert: '<p>line 3</p>' },
+        { insert: '\n', attributes: { 'code-block': true } },
+        { insert: '<p>line 4</p>' },
+        { insert: '\n', attributes: { 'code-block': true } },
+      ],
+    });
+    // HTML is encoded inside code blocks
+    expect(html).toContain('&lt;p&gt;line 1&lt;/p&gt;');
+    expect(html).toContain('&lt;p&gt;line 4&lt;/p&gt;');
+    // Single pre block
+    expect(html.match(/<pre/g)?.length).toBe(1);
   });
 });

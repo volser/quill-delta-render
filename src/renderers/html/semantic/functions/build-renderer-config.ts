@@ -22,6 +22,9 @@ export function buildRendererConfig(cfg: ResolvedConfig): RendererConfig<string>
     blocks: {
       paragraph: (node, children) => {
         const tag = cfg.customTag?.('paragraph', node) ?? cfg.paragraphTag;
+        if (!tag) {
+          return children || '<br/>';
+        }
         const content = children || '<br/>';
         const attrStr = buildBlockAttrs(node, cfg);
         return `<${tag}${attrStr}>${content}</${tag}>`;
@@ -183,17 +186,23 @@ export function buildRendererConfig(cfg: ResolvedConfig): RendererConfig<string>
       underline: (content) => `<u>${content}</u>`,
       strike: (content) => `<s>${content}</s>`,
 
-      link: (content, value) => {
+      link: (content, value, node) => {
         const rawHref = String(value);
         const href = sanitizeUrl(rawHref, cfg);
         if (!href) return content;
 
         let attrs = `href="${encodeText(href, cfg)}"`;
-        if (cfg.linkTarget) {
-          attrs += ` target="${cfg.linkTarget}"`;
+
+        // Per-op target/rel override global config
+        const target =
+          typeof node.attributes.target === 'string' ? node.attributes.target : cfg.linkTarget;
+        const rel = typeof node.attributes.rel === 'string' ? node.attributes.rel : cfg.linkRel;
+
+        if (target) {
+          attrs += ` target="${target}"`;
         }
-        if (cfg.linkRel) {
-          attrs += ` rel="${cfg.linkRel}"`;
+        if (rel) {
+          attrs += ` rel="${rel}"`;
         }
         return `<a ${attrs}>${content}</a>`;
       },

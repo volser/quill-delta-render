@@ -111,6 +111,55 @@ describe('SemanticHtmlRenderer integration: config', () => {
     });
   });
 
+  describe('per-op link target override', () => {
+    it('should use per-op target instead of global linkTarget', () => {
+      const html = renderDelta(
+        {
+          ops: [{ insert: 'link', attributes: { link: '#', target: '_self' } }, { insert: '\n' }],
+        },
+        { linkTarget: '_blank' },
+      );
+      expect(html).toContain('target="_self"');
+      expect(html).not.toContain('target="_blank"');
+    });
+
+    it('should fall back to global linkTarget when per-op target is absent', () => {
+      const html = renderDelta(
+        {
+          ops: [{ insert: 'link', attributes: { link: '#' } }, { insert: '\n' }],
+        },
+        { linkTarget: '_blank' },
+      );
+      expect(html).toContain('target="_blank"');
+    });
+  });
+
+  describe('per-op link rel override', () => {
+    it('should use per-op rel instead of global linkRel', () => {
+      const html = renderDelta(
+        {
+          ops: [
+            { insert: 'link', attributes: { link: '#', rel: 'nofollow noopener' } },
+            { insert: '\n' },
+          ],
+        },
+        { linkRel: 'noopener' },
+      );
+      expect(html).toContain('rel="nofollow noopener"');
+      expect(html).not.toContain('rel="noopener"');
+    });
+
+    it('should fall back to global linkRel when per-op rel is absent', () => {
+      const html = renderDelta(
+        {
+          ops: [{ insert: 'link', attributes: { link: '#' } }, { insert: '\n' }],
+        },
+        { linkRel: 'noopener' },
+      );
+      expect(html).toContain('rel="noopener"');
+    });
+  });
+
   describe('list tags', () => {
     it('should use custom orderedListTag', () => {
       const html = renderDelta(
@@ -330,6 +379,40 @@ describe('SemanticHtmlRenderer integration: config', () => {
       expect(html).toContain('<div');
       expect(html).toContain('</div>');
       expect(html).not.toContain('<h1');
+    });
+  });
+
+  describe('paragraphTag empty string', () => {
+    it('should omit wrapper tag entirely when paragraphTag is empty', () => {
+      const html = renderDelta({ ops: [{ insert: 'Hello\n' }] }, { paragraphTag: '' });
+      expect(html).toBe('Hello');
+    });
+
+    it('should produce only <br/> for empty lines when paragraphTag is empty', () => {
+      const html = renderDelta({ ops: [{ insert: '\n' }] }, { paragraphTag: '' });
+      expect(html).toBe('<br/>');
+    });
+
+    it('should produce no wrappers around multiple paragraphs', () => {
+      const html = renderDelta({ ops: [{ insert: 'a\nb\n' }] }, { paragraphTag: '' });
+      // Each paragraph is unwrapped, resulting in concatenated content
+      expect(html).toBe('ab');
+    });
+  });
+
+  describe('inlineStyles + customCssStyles combined', () => {
+    it('should combine inlineStyles and customCssStyles on the same element', () => {
+      const html = renderDelta(
+        { ops: [{ insert: 'text' }, { insert: '\n', attributes: { align: 'center', indent: 1 } }] },
+        {
+          inlineStyles: true,
+          customCssStyles: (node: TNode) =>
+            node.type === 'paragraph' ? 'border: 1px solid red' : undefined,
+        },
+      );
+      expect(html).toContain('text-align: center');
+      expect(html).toContain('padding-left: 3em');
+      expect(html).toContain('border: 1px solid red');
     });
   });
 });

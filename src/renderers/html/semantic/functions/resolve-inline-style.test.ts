@@ -16,7 +16,7 @@ describe('resolveInlineStyle', () => {
   });
 
   it('should call function converter with value and node', () => {
-    const converter = (v: string, n: TNode) => `padding-left: ${parseInt(v, 10) * 3}em`;
+    const converter = (v: string, _n: TNode) => `padding-left: ${parseInt(v, 10) * 3}em`;
     expect(resolveInlineStyle(converter, '2', node)).toBe('padding-left: 6em');
   });
 
