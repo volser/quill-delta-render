@@ -20,11 +20,8 @@ import { groupConsecutiveElementsWhile } from '../utils/group-consecutive';
  * const ast = new DeltaParser(delta).use(codeBlockGrouper).toAST();
  * ```
  */
-export const codeBlockGrouper: Transformer = (root: TNode): TNode => {
-  return {
-    ...root,
-    children: groupCodeBlocks(root.children),
-  };
+export const codeBlockGrouper: Transformer = (children: TNode[]): TNode[] => {
+  return groupCodeBlocks(children);
 };
 
 function isCodeBlock(node: TNode): boolean {

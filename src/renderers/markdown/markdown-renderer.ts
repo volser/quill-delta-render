@@ -1,5 +1,5 @@
-import type { BlockDescriptor, TNode } from '../../core/ast-types';
-import { BaseRenderer } from '../../core/base-renderer';
+import type { TNode } from '../../core/ast-types';
+import { SimpleRenderer } from '../../core/simple-renderer';
 import { buildRendererConfig } from './functions/build-renderer-config';
 import { padListItemContent } from './functions/pad-list-item-content';
 import { resolveCodeBlockLanguage } from './functions/resolve-code-block-language';
@@ -47,7 +47,7 @@ import type { MarkdownConfig, ResolvedMarkdownConfig } from './types/markdown-co
  * });
  * ```
  */
-export class MarkdownRenderer extends BaseRenderer<string> {
+export class MarkdownRenderer extends SimpleRenderer<string> {
   private readonly cfg: ResolvedMarkdownConfig;
 
   constructor(config?: MarkdownConfig) {
@@ -157,7 +157,7 @@ export class MarkdownRenderer extends BaseRenderer<string> {
     }
   }
 
-  // ─── BaseRenderer Abstract Methods ────────────────────────────────────────
+  // ─── SimpleRenderer Abstract Methods ─────────────────────────────────────
 
   protected joinChildren(children: string[]): string {
     return children.join('');
@@ -165,34 +165,5 @@ export class MarkdownRenderer extends BaseRenderer<string> {
 
   protected renderText(text: string): string {
     return text;
-  }
-
-  protected emptyAttrs(): unknown {
-    return undefined;
-  }
-
-  protected mergeAttrs(_target: unknown, source: unknown): unknown {
-    return source;
-  }
-
-  protected hasAttrs(_attrs: unknown): boolean {
-    return false;
-  }
-
-  protected wrapWithAttrs(content: string, _attrs: unknown): string {
-    return content;
-  }
-
-  protected renderSimpleTag(_tag: string, content: string, _collectedAttrs?: unknown): string {
-    return content;
-  }
-
-  protected renderBlockFromDescriptor(
-    _descriptor: BlockDescriptor,
-    _node: TNode,
-    childrenOutput: string,
-    _resolvedAttrs: unknown,
-  ): string {
-    return childrenOutput;
   }
 }

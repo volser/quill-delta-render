@@ -1,3 +1,7 @@
+// Convenience
+export type { ParseQuillDeltaOptions } from './parse-quill-delta';
+export { parseQuillDelta } from './parse-quill-delta';
+
 // Core
 
 export { DEFAULT_BLOCK_ATTRIBUTES } from './common/default-block-attributes';
@@ -32,7 +36,9 @@ export type {
   Transformer,
 } from './core/ast-types';
 export { BaseRenderer } from './core/base-renderer';
-export { DeltaParser } from './core/parser';
+export { DeltaParser, parseDelta } from './core/parser';
+export type { SimpleRendererConfig } from './core/simple-renderer';
+export { SimpleRenderer } from './core/simple-renderer';
 export { applyTransformers, composeTransformers } from './core/transformer';
 
 // Renderers

@@ -88,39 +88,23 @@ export class SemanticHtmlRenderer extends BaseHtmlRenderer {
       return this.renderTextNode(node);
     }
 
-    // Try custom blot renderer for unknown types
+    // Custom blot fallback for unknown embed types
     if (!this.blocks[node.type] && this.customBlotRenderer) {
       return this.customBlotRenderer(node, null);
     }
 
     const groupType = getGroupType(node);
 
-    // Before-render hook
+    // Before-render hook — can replace output entirely
     if (this.beforeRenderCb && groupType) {
       const replaced = this.beforeRenderCb(groupType, node);
       if (replaced) {
-        if (this.afterRenderCb) {
-          return this.afterRenderCb(groupType, replaced);
-        }
-        return replaced;
+        return this.afterRenderCb ? this.afterRenderCb(groupType, replaced) : replaced;
       }
     }
 
-    // Standard rendering — delegate to base class renderNode logic
-    const blockConfig = this.blocks[node.type];
-    let html: string;
-    if (blockConfig) {
-      const childrenOutput = this.renderChildren(node);
-      const resolvedAttrs = this.resolveBlockAttributes(node);
-
-      if (typeof blockConfig === 'object' && 'tag' in blockConfig) {
-        html = this.renderBlockFromDescriptor(blockConfig, node, childrenOutput, resolvedAttrs);
-      } else {
-        html = blockConfig(node, childrenOutput, resolvedAttrs);
-      }
-    } else {
-      html = this.renderChildren(node);
-    }
+    // Delegate to base class for standard block/mark rendering
+    let html = super.renderNode(node);
 
     // After-render hook
     if (this.afterRenderCb && groupType) {

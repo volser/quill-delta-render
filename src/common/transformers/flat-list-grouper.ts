@@ -23,11 +23,8 @@ import { groupConsecutiveElementsWhile } from '../utils/group-consecutive';
  * const ast = new DeltaParser(delta).use(flatListGrouper).toAST();
  * ```
  */
-export const flatListGrouper: Transformer = (root: TNode): TNode => {
-  return {
-    ...root,
-    children: groupFlatLists(root.children),
-  };
+export const flatListGrouper: Transformer = (children: TNode[]): TNode[] => {
+  return groupFlatLists(children);
 };
 
 function isListItem(node: TNode): boolean {

@@ -2,18 +2,21 @@ import type { TNode, Transformer } from './ast-types';
 
 /**
  * Runs a sequence of transformers against an AST root node.
- * Each transformer receives the output of the previous one.
+ * Each transformer receives the children array from the previous step.
  *
- * This is the standalone utility version — `DeltaParser.use()` calls
- * transformers internally via the same pattern.
+ * Returns a new root node with the transformed children.
  *
  * @example
  * ```ts
- * const finalAst = applyTransformers(rawAst, [ListGrouper, TableGrouper]);
+ * const finalAst = applyTransformers(rawAst, [listGrouper, tableGrouper]);
  * ```
  */
 export function applyTransformers(root: TNode, transformers: Transformer[]): TNode {
-  return transformers.reduce((currentRoot, transformer) => transformer(currentRoot), root);
+  const children = transformers.reduce(
+    (currentChildren, transformer) => transformer(currentChildren),
+    root.children,
+  );
+  return { ...root, children };
 }
 
 /**
@@ -21,10 +24,11 @@ export function applyTransformers(root: TNode, transformers: Transformer[]): TNo
  *
  * @example
  * ```ts
- * const combined = composeTransformers(ListGrouper, TableGrouper);
- * const finalAst = combined(rawAst);
+ * const combined = composeTransformers(listGrouper, tableGrouper);
+ * const finalChildren = combined(rawChildren);
  * ```
  */
 export function composeTransformers(...transformers: Transformer[]): Transformer {
-  return (root: TNode) => applyTransformers(root, transformers);
+  return (children: TNode[]) =>
+    transformers.reduce((currentChildren, transformer) => transformer(currentChildren), children);
 }

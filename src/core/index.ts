@@ -12,5 +12,7 @@ export type {
 } from './ast-types';
 
 export { BaseRenderer } from './base-renderer';
-export { DeltaParser } from './parser';
+export { DeltaParser, parseDelta } from './parser';
+export type { SimpleRendererConfig } from './simple-renderer';
+export { SimpleRenderer } from './simple-renderer';
 export { applyTransformers, composeTransformers } from './transformer';

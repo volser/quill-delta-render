@@ -19,11 +19,8 @@ import { isSameRow, isTableCell } from '../utils/node-queries';
  * const ast = new DeltaParser(delta).use(tableGrouper).toAST();
  * ```
  */
-export const tableGrouper: Transformer = (root: TNode): TNode => {
-  return {
-    ...root,
-    children: groupTables(root.children),
-  };
+export const tableGrouper: Transformer = (children: TNode[]): TNode[] => {
+  return groupTables(children);
 };
 
 // ─── Core grouping ──────────────────────────────────────────────────────────

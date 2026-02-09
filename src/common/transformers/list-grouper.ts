@@ -26,11 +26,8 @@ import {
  * const ast = new DeltaParser(delta).use(listGrouper).toAST();
  * ```
  */
-export const listGrouper: Transformer = (root: TNode): TNode => {
-  return {
-    ...root,
-    children: nestLists(root.children),
-  };
+export const listGrouper: Transformer = (children: TNode[]): TNode[] => {
+  return nestLists(children);
 };
 
 // ─── Internal nesting structures ────────────────────────────────────────────

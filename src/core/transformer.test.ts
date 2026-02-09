@@ -33,16 +33,13 @@ describe('applyTransformers', () => {
     const root = makeRoot([makeTextBlock('hello')]);
     const result = applyTransformers(root, []);
 
-    expect(result).toBe(root);
+    expect(result.children).toEqual(root.children);
   });
 
   it('should apply a single transformer', () => {
     const root = makeRoot([makeTextBlock('hello')]);
 
-    const addBlock: Transformer = (r) => ({
-      ...r,
-      children: [...r.children, makeTextBlock('world')],
-    });
+    const addBlock: Transformer = (children) => [...children, makeTextBlock('world')];
 
     const result = applyTransformers(root, [addBlock]);
 
@@ -53,14 +50,8 @@ describe('applyTransformers', () => {
   it('should pipe transformers left to right', () => {
     const root = makeRoot([]);
 
-    const addFirst: Transformer = (r) => ({
-      ...r,
-      children: [...r.children, makeTextBlock('first')],
-    });
-    const addSecond: Transformer = (r) => ({
-      ...r,
-      children: [...r.children, makeTextBlock('second')],
-    });
+    const addFirst: Transformer = (children) => [...children, makeTextBlock('first')];
+    const addSecond: Transformer = (children) => [...children, makeTextBlock('second')];
 
     const result = applyTransformers(root, [addFirst, addSecond]);
 
@@ -72,20 +63,14 @@ describe('applyTransformers', () => {
 
 describe('composeTransformers', () => {
   it('should compose multiple transformers into one', () => {
-    const addA: Transformer = (r) => ({
-      ...r,
-      children: [...r.children, makeTextBlock('A')],
-    });
-    const addB: Transformer = (r) => ({
-      ...r,
-      children: [...r.children, makeTextBlock('B')],
-    });
+    const addA: Transformer = (children) => [...children, makeTextBlock('A')];
+    const addB: Transformer = (children) => [...children, makeTextBlock('B')];
 
     const composed = composeTransformers(addA, addB);
-    const result = composed(makeRoot([]));
+    const result = composed([]);
 
-    expect(result.children).toHaveLength(2);
-    expect(result.children[0]!.children[0]!.data).toBe('A');
-    expect(result.children[1]!.children[0]!.data).toBe('B');
+    expect(result).toHaveLength(2);
+    expect(result[0]!.children[0]!.data).toBe('A');
+    expect(result[1]!.children[0]!.data).toBe('B');
   });
 });

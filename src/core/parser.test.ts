@@ -1,9 +1,56 @@
 import { describe, expect, it } from 'vitest';
-import type { Delta, ParserConfig, TNode } from './ast-types';
-import { DeltaParser } from './parser';
+import type { Delta, ParserConfig, TNode, Transformer } from './ast-types';
+import { DeltaParser, parseDelta } from './parser';
 
 /** Empty config — no block attributes, tests pure generic parsing. */
 const EMPTY_CONFIG: ParserConfig = { blockAttributes: {} };
+
+describe('parseDelta (pure function)', () => {
+  it('should produce the same result as DeltaParser for plain text', () => {
+    const delta: Delta = { ops: [{ insert: 'Hello world\n' }] };
+
+    const fromClass = new DeltaParser(delta, EMPTY_CONFIG).toAST();
+    const fromFn = parseDelta(delta, EMPTY_CONFIG);
+
+    expect(fromFn).toEqual(fromClass);
+  });
+
+  it('should parse block attributes via config', () => {
+    const config: ParserConfig = {
+      blockAttributes: {
+        header: (value) => ({ blockType: 'header', blockAttrs: { header: value } }),
+      },
+    };
+    const delta: Delta = {
+      ops: [{ insert: 'Title' }, { insert: '\n', attributes: { header: 1 } }],
+    };
+
+    const ast = parseDelta(delta, config);
+
+    expect(ast.children[0]!.type).toBe('header');
+    expect(ast.children[0]!.attributes.header).toBe(1);
+  });
+
+  it('should handle block embeds', () => {
+    const config: ParserConfig = {
+      blockAttributes: {},
+      blockEmbeds: ['video'],
+    };
+    const delta: Delta = {
+      ops: [
+        { insert: 'before' },
+        { insert: { video: 'https://example.com/v.mp4' } },
+        { insert: 'after\n' },
+      ],
+    };
+
+    const ast = parseDelta(delta, config);
+
+    const videoNode = ast.children.find((c) => c.type === 'video');
+    expect(videoNode).toBeDefined();
+    expect(videoNode!.data).toBe('https://example.com/v.mp4');
+  });
+});
 
 describe('DeltaParser', () => {
   describe('basic text parsing', () => {
@@ -259,16 +306,14 @@ describe('DeltaParser', () => {
         ops: [{ insert: 'Hello\n' }],
       };
 
-      const uppercaseTransformer = (root: TNode): TNode => ({
-        ...root,
-        children: root.children.map((child) => ({
+      const uppercaseTransformer: Transformer = (children) =>
+        children.map((child) => ({
           ...child,
           children: child.children.map((textNode) => ({
             ...textNode,
             data: typeof textNode.data === 'string' ? textNode.data.toUpperCase() : textNode.data,
           })),
-        })),
-      });
+        }));
 
       const ast = new DeltaParser(delta, EMPTY_CONFIG).use(uppercaseTransformer).toAST();
 
@@ -282,13 +327,13 @@ describe('DeltaParser', () => {
 
       const calls: string[] = [];
 
-      const t1 = (root: TNode): TNode => {
+      const t1: Transformer = (children) => {
         calls.push('t1');
-        return root;
+        return children;
       };
-      const t2 = (root: TNode): TNode => {
+      const t2: Transformer = (children) => {
         calls.push('t2');
-        return root;
+        return children;
       };
 
       new DeltaParser(delta, EMPTY_CONFIG).use(t1).use(t2).toAST();

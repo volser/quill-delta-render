@@ -116,25 +116,20 @@ function mergeBlocks(blocks: TNode[]): TNode {
  *
  * @example
  * ```ts
- * const ast = new DeltaParser(delta, config)
- *   .use(listGrouper)
- *   .use(blockMerger())
- *   .toAST();
+ * const ast = applyTransformers(rawAst, [listGrouper, blockMerger()]);
  * ```
  *
  * @example
  * ```ts
  * // Merge everything including paragraphs
- * const ast = new DeltaParser(delta, config)
- *   .use(blockMerger({ multiLineParagraph: true }))
- *   .toAST();
+ * const ast = applyTransformers(rawAst, [blockMerger({ multiLineParagraph: true })]);
  * ```
  */
 export function blockMerger(config?: BlockMergerConfig): Transformer {
   const cfg: Required<BlockMergerConfig> = { ...DEFAULT_CONFIG, ...config };
 
-  return (root: TNode): TNode => {
-    const grouped = groupConsecutiveElementsWhile(root.children, (curr, prev) => {
+  return (children: TNode[]): TNode[] => {
+    const grouped = groupConsecutiveElementsWhile(children, (curr, prev) => {
       return (
         isMergeableType(curr.type, cfg) &&
         isMergeableType(prev.type, cfg) &&
@@ -142,16 +137,11 @@ export function blockMerger(config?: BlockMergerConfig): Transformer {
       );
     });
 
-    const merged = grouped.map((item) => {
+    return grouped.map((item) => {
       if (Array.isArray(item)) {
         return mergeBlocks(item);
       }
       return item;
     });
-
-    return {
-      ...root,
-      children: merged,
-    };
   };
 }

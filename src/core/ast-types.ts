@@ -45,18 +45,22 @@ export interface TNode {
 // ─── Transformer Types ───────────────────────────────────────────────────────
 
 /**
- * A transformer function receives the root TNode and returns a new (or mutated) root.
- * Used as middleware in the parsing pipeline.
+ * A transformer function receives the root's children array and returns
+ * a new (or mutated) children array. Used as middleware in the parsing pipeline.
+ *
+ * Transformers operate on the children array rather than the root node,
+ * eliminating the boilerplate of unwrapping/rewrapping the root.
+ * The `applyTransformers` utility handles root node management.
  *
  * @example
  * ```ts
- * const ListGrouper: Transformer = (root) => {
- *   // group adjacent list-item children into list containers
- *   return newRoot;
+ * const imageGrouper: Transformer = (children) => {
+ *   // group adjacent image nodes into a gallery container
+ *   return groupImages(children);
  * };
  * ```
  */
-export type Transformer = (root: TNode) => TNode;
+export type Transformer = (children: TNode[]) => TNode[];
 
 // ─── Parser Types ────────────────────────────────────────────────────────────
 
