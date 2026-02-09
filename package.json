@@ -1,6 +1,6 @@
 {
   "name": "quill-delta-renderer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A framework-agnostic, AST-based engine for converting Quill Deltas into HTML, Markdown, React components, or any other format.",
   "type": "module",
   "main": "./dist/index.cjs",
