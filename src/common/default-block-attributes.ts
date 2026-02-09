@@ -17,9 +17,9 @@ export const DEFAULT_BLOCK_ATTRIBUTES: Record<string, BlockAttributeHandler> = {
     blockAttrs: {},
   }),
 
-  'code-block': () => ({
+  'code-block': (value) => ({
     blockType: 'code-block',
-    blockAttrs: {},
+    blockAttrs: { 'code-block': value },
   }),
 
   list: (value) => ({

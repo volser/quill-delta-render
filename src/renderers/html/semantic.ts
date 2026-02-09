@@ -1,18 +1,6 @@
 import { DEFAULT_MARK_PRIORITIES } from '../../common/default-mark-priorities';
 import type { RendererConfig } from '../../core/ast-types';
-import { BaseRenderer } from '../../core/base-renderer';
-
-/**
- * Escape HTML special characters to prevent XSS.
- */
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+import { BaseHtmlRenderer, escapeHtml } from './base-html-renderer';
 
 const SEMANTIC_HTML_CONFIG: RendererConfig<string> = {
   markPriorities: DEFAULT_MARK_PRIORITIES,
@@ -89,22 +77,17 @@ const SEMANTIC_HTML_CONFIG: RendererConfig<string> = {
 /**
  * Renders an AST into clean, semantic HTML.
  *
+ * Uses standard HTML5 tags: `<strong>`, `<em>`, `<h1>`–`<h6>`, `<blockquote>`, etc.
+ * Suitable for CMS output, email, or any context where clean markup matters.
+ *
  * @example
  * ```ts
  * const renderer = new SemanticHtmlRenderer();
  * const html = renderer.render(ast);
  * ```
  */
-export class SemanticHtmlRenderer extends BaseRenderer<string> {
+export class SemanticHtmlRenderer extends BaseHtmlRenderer {
   constructor() {
     super(SEMANTIC_HTML_CONFIG);
-  }
-
-  protected joinChildren(children: string[]): string {
-    return children.join('');
-  }
-
-  protected renderText(text: string): string {
-    return escapeHtml(text);
   }
 }
