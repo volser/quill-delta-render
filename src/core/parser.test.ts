@@ -186,6 +186,71 @@ describe('DeltaParser', () => {
       expect(paragraph.children[0]!.type).toBe('image');
       expect(paragraph.children[0]!.data).toBe('https://example.com/photo.jpg');
     });
+
+    it('should parse a formula embed', () => {
+      const delta: Delta = {
+        ops: [{ insert: { formula: 'e=mc^2' } }, { insert: '\n' }],
+      };
+
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
+      const embed = ast.children[0]!.children[0]!;
+
+      expect(embed.type).toBe('formula');
+      expect(embed.data).toBe('e=mc^2');
+    });
+
+    it('should parse a mention embed with data', () => {
+      const delta: Delta = {
+        ops: [
+          {
+            insert: { mention: { name: 'John', slug: 'john' } },
+            attributes: { mention: { name: 'John', slug: 'john' } },
+          },
+          { insert: '\n' },
+        ],
+      };
+
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
+      const embed = ast.children[0]!.children[0]!;
+
+      expect(embed.type).toBe('mention');
+      expect(embed.data).toEqual({ name: 'John', slug: 'john' });
+      expect(embed.attributes.mention).toEqual({ name: 'John', slug: 'john' });
+    });
+
+    it('should pass through custom/unknown embed types', () => {
+      const delta: Delta = {
+        ops: [
+          { insert: { myWidget: { id: 'w-123', config: { color: 'blue' } } } },
+          { insert: '\n' },
+        ],
+      };
+
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
+      const embed = ast.children[0]!.children[0]!;
+
+      expect(embed.type).toBe('myWidget');
+      expect(embed.data).toEqual({ id: 'w-123', config: { color: 'blue' } });
+    });
+
+    it('should preserve attributes on embeds', () => {
+      const delta: Delta = {
+        ops: [
+          {
+            insert: { image: 'https://example.com/img.png' },
+            attributes: { width: '200', link: 'https://example.com' },
+          },
+          { insert: '\n' },
+        ],
+      };
+
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
+      const embed = ast.children[0]!.children[0]!;
+
+      expect(embed.type).toBe('image');
+      expect(embed.attributes.width).toBe('200');
+      expect(embed.attributes.link).toBe('https://example.com');
+    });
   });
 
   describe('transformer integration', () => {

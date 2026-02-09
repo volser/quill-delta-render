@@ -142,11 +142,14 @@ const QUILL_HTML_CONFIG: RendererConfig<string> = {
 };
 
 /**
- * Renders an AST into Quill-compatible HTML.
+ * Renders an AST into Quill's native HTML format.
  *
- * Produces markup that matches Quill's native output format, including
+ * Produces markup that exactly matches Quill editor's output, including
  * `ql-*` CSS classes for indentation, alignment, direction, fonts, and sizes.
  * Suitable for rendering inside a Quill editor or Quill-styled containers.
+ *
+ * For a configurable HTML renderer (with custom class prefix, inline styles,
+ * hooks, etc.), use `SemanticHtmlRenderer` instead.
  *
  * @example
  * ```ts
