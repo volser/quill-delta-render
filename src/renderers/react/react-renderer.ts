@@ -1,15 +1,30 @@
-import type { BlockDescriptor, RendererConfig, TNode } from '../../core/ast-types';
+import { cloneElement, createElement, isValidElement, type ReactNode } from 'react';
+import type { BlockDescriptor, TNode } from '../../core/ast-types';
 import { BaseRenderer } from '../../core/base-renderer';
+import { buildRendererConfig } from './functions/build-renderer-config';
+import { resolveConfig } from './functions/resolve-config';
+import type { ReactRendererConfig, ResolvedReactConfig } from './types/react-config';
+import type { ReactProps } from './types/react-props';
+import { EMPTY_REACT_PROPS, hasReactProps, mergeReactProps } from './types/react-props';
 
-// TODO: Replace with actual React types when implementing
-// For now, use a generic type to avoid hard React dependency at the type level
-type ReactNode = unknown;
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
-// TODO: Define React-specific attrs type (e.g. React.HTMLAttributes or a props object)
-type ReactAttrs = Record<string, unknown>;
+/**
+ * Assign a React key to an element. Strings and other non-element
+ * children are returned as-is (React handles them natively in arrays).
+ */
+function withKey(child: ReactNode, index: number): ReactNode {
+  return isValidElement(child) ? cloneElement(child, { key: index }) : child;
+}
+
+// ─── Renderer ───────────────────────────────────────────────────────────────
 
 /**
  * Renders an AST into React elements (no `dangerouslySetInnerHTML`).
+ *
+ * Produces elements structurally equivalent to the SemanticHtmlRenderer
+ * output, using standard HTML tag names and React conventions
+ * (`className`, camelCase styles).
  *
  * Requires `react` as a peer dependency.
  *
@@ -17,32 +32,89 @@ type ReactAttrs = Record<string, unknown>;
  * ```tsx
  * import { ReactRenderer } from 'quill-delta-render/renderers/react';
  *
- * const MyPost = ({ content }) => {
- *   const renderer = new ReactRenderer();
- *   return <div>{renderer.render(content)}</div>;
- * };
+ * const renderer = new ReactRenderer();
+ * const element = renderer.render(ast);
+ * return <div>{element}</div>;
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // With custom components
+ * const renderer = new ReactRenderer({
+ *   components: {
+ *     paragraph: ({ children }) => <div className="my-p">{children}</div>,
+ *     image: ({ node }) => <CustomImage src={node.data} />,
+ *   },
+ * });
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // Extend with custom embed
+ * const renderer = new ReactRenderer();
+ * renderer.extendBlock('user_mention', (node) => {
+ *   const data = node.data as Record<string, unknown>;
+ *   return createElement('a', { href: `#user_mention#${data.id}` }, `@${data.name}`);
+ * });
  * ```
  */
-export class ReactRenderer extends BaseRenderer<ReactNode, ReactAttrs> {
-  constructor() {
-    // TODO: Implement React-specific block and mark handlers
-    // Blocks should return React.createElement() calls
-    // Marks should wrap content in appropriate React elements
-    const config: RendererConfig<ReactNode, ReactAttrs> = {
-      blocks: {
-        // TODO: paragraph, header, blockquote, code-block, list, list-item, image, video
-      },
-      marks: {
-        // TODO: bold, italic, underline, strike, link, color, background, script, code
-      },
-    };
+export class ReactRenderer extends BaseRenderer<ReactNode, ReactProps> {
+  private readonly cfg: ResolvedReactConfig;
 
-    super(config);
+  constructor(config?: ReactRendererConfig) {
+    const cfg = resolveConfig(config);
+    super(buildRendererConfig(cfg));
+    this.cfg = cfg;
   }
 
+  // ─── Tree Traversal Overrides ───────────────────────────────────────────
+
+  protected override renderNode(node: TNode): ReactNode {
+    if (node.type === 'root') {
+      return this.renderChildren(node);
+    }
+
+    if (node.type === 'code-block-container') {
+      return this.renderCodeBlockContainer(node);
+    }
+
+    return super.renderNode(node);
+  }
+
+  // ─── Code Blocks ──────────────────────────────────────────────────────────
+
+  /**
+   * Render a `code-block-container` produced by the `codeBlockGrouper` transformer.
+   *
+   * Collects the raw text of each child `code-block` node and wraps them
+   * in `<pre><code>...</code></pre>` with an optional language class.
+   */
+  private renderCodeBlockContainer(node: TNode): ReactNode {
+    const firstChild = node.children[0];
+    const lang = firstChild ? firstChild.attributes['code-block'] : undefined;
+
+    const syntaxClass = `${this.cfg.classPrefix}-syntax`;
+    const className =
+      typeof lang === 'string' && lang !== 'true' ? `${syntaxClass} language-${lang}` : syntaxClass;
+
+    const lines = node.children.map((child, i) => {
+      const text = child.children.map((c) => String(c.data ?? '')).join('');
+      // Add newline between lines (not after the last one)
+      return i < node.children.length - 1 ? `${text}\n` : text;
+    });
+
+    const codeElement = createElement('code', { className }, ...lines);
+    return createElement('pre', null, codeElement);
+  }
+
+  // ─── BaseRenderer Abstract Methods ────────────────────────────────────────
+
   protected joinChildren(children: ReactNode[]): ReactNode {
-    // TODO: Return children array (React can render arrays)
-    return children;
+    if (children.length === 0) return null;
+    if (children.length === 1) return children[0]!;
+
+    // Assign keys to React elements in arrays to avoid React warnings
+    return children.map(withKey);
   }
 
   protected renderText(text: string): ReactNode {
@@ -50,39 +122,44 @@ export class ReactRenderer extends BaseRenderer<ReactNode, ReactAttrs> {
     return text;
   }
 
-  protected emptyAttrs(): ReactAttrs {
-    return {};
+  protected emptyAttrs(): ReactProps {
+    return EMPTY_REACT_PROPS;
   }
 
-  protected mergeAttrs(target: ReactAttrs, source: ReactAttrs): ReactAttrs {
-    return { ...target, ...source };
+  protected mergeAttrs(target: ReactProps, source: ReactProps): ReactProps {
+    return mergeReactProps(target, source);
   }
 
-  protected hasAttrs(attrs: ReactAttrs): boolean {
-    return Object.keys(attrs).length > 0;
+  protected hasAttrs(attrs: ReactProps): boolean {
+    return hasReactProps(attrs);
   }
 
-  protected wrapWithAttrs(content: ReactNode, _attrs: ReactAttrs): ReactNode {
-    // TODO: Use React.createElement('span', attrs, content)
-    return content;
+  protected wrapWithAttrs(content: ReactNode, attrs: ReactProps): ReactNode {
+    return createElement('span', attrs, content);
   }
 
   protected renderSimpleTag(
     tag: string,
     content: ReactNode,
-    _collectedAttrs?: ReactAttrs,
+    collectedAttrs?: ReactProps,
   ): ReactNode {
-    // TODO: Use React.createElement(tag, collectedAttrsToProps, content)
-    return [tag, content];
+    const props = collectedAttrs && hasReactProps(collectedAttrs) ? collectedAttrs : null;
+    return createElement(tag, props, content);
   }
 
   protected renderBlockFromDescriptor(
-    _descriptor: BlockDescriptor,
-    _node: TNode,
+    descriptor: BlockDescriptor,
+    node: TNode,
     childrenOutput: ReactNode,
-    _resolvedAttrs: ReactAttrs,
+    resolvedAttrs: ReactProps,
   ): ReactNode {
-    // TODO: Use React.createElement(tag, resolvedAttrsToProps, children)
-    return childrenOutput;
+    const tag = typeof descriptor.tag === 'function' ? descriptor.tag(node) : descriptor.tag;
+    const props = hasReactProps(resolvedAttrs) ? resolvedAttrs : null;
+
+    if (descriptor.selfClosing) {
+      return createElement(tag, props);
+    }
+
+    return createElement(tag, props, childrenOutput || null);
   }
 }
