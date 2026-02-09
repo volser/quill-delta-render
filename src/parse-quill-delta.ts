@@ -67,8 +67,8 @@ function buildStandardTransformers(mergerConfig?: BlockMergerConfig | false): Tr
  *
  * @example
  * ```ts
- * import { parseQuillDelta } from 'quill-delta-render';
- * import { SemanticHtmlRenderer } from 'quill-delta-render/renderers/html';
+ * import { parseQuillDelta } from 'quill-delta-renderer';
+ * import { SemanticHtmlRenderer } from 'quill-delta-renderer/renderers/html';
  *
  * const ast = parseQuillDelta(delta);
  * const html = new SemanticHtmlRenderer().render(ast);

@@ -104,11 +104,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/volser/quill-delta-render.git"
+    "url": "git+https://github.com/volser/quill-delta-renderer.git"
   },
-  "homepage": "https://github.com/volser/quill-delta-render#readme",
+  "homepage": "https://github.com/volser/quill-delta-renderer#readme",
   "bugs": {
-    "url": "https://github.com/volser/quill-delta-render/issues"
+    "url": "https://github.com/volser/quill-delta-renderer/issues"
   },
   "engines": {
     "node": ">=18"

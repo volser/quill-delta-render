@@ -80,7 +80,7 @@ export interface ReactRendererConfig {
    *
    * @example
    * ```tsx
-   * import { createUrlSanitizer } from 'quill-delta-render/common';
+   * import { createUrlSanitizer } from 'quill-delta-renderer/common';
    *
    * const renderer = new ReactRenderer({
    *   urlSanitizer: createUrlSanitizer(),

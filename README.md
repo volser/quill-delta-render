@@ -1,4 +1,4 @@
-# quill-delta-render
+# quill-delta-renderer
 
 A framework-agnostic, AST-based engine for converting [Quill](https://quilljs.com/) Deltas into HTML, Markdown, React components, or any custom format.
 
@@ -13,7 +13,7 @@ A framework-agnostic, AST-based engine for converting [Quill](https://quilljs.co
 ## Install
 
 ```bash
-npm install quill-delta-render
+npm install quill-delta-renderer
 ```
 
 If you use the React renderer, also install React:
@@ -29,8 +29,8 @@ npm install react react-dom
 The fastest way to get started -- `parseQuillDelta` bundles the standard parser config and transformers:
 
 ```ts
-import { parseQuillDelta } from 'quill-delta-render';
-import { SemanticHtmlRenderer } from 'quill-delta-render/renderers/html';
+import { parseQuillDelta } from 'quill-delta-renderer';
+import { SemanticHtmlRenderer } from 'quill-delta-renderer/renderers/html';
 
 const delta = { ops: [{ insert: 'Hello, world!\n' }] };
 
@@ -44,14 +44,14 @@ const html = new SemanticHtmlRenderer().render(ast);
 Use the individual pieces when you need custom parser config or transformers:
 
 ```ts
-import { parseDelta, applyTransformers } from 'quill-delta-render/core';
+import { parseDelta, applyTransformers } from 'quill-delta-renderer/core';
 import {
   DEFAULT_BLOCK_ATTRIBUTES,
   listGrouper,
   codeBlockGrouper,
   tableGrouper,
-} from 'quill-delta-render/common';
-import { SemanticHtmlRenderer } from 'quill-delta-render/renderers/html';
+} from 'quill-delta-renderer/common';
+import { SemanticHtmlRenderer } from 'quill-delta-renderer/renderers/html';
 
 const delta = { ops: [{ insert: 'Hello, world!\n' }] };
 
@@ -69,8 +69,8 @@ const html = new SemanticHtmlRenderer().render(ast);
 ### Markdown
 
 ```ts
-import { parseQuillDelta } from 'quill-delta-render';
-import { MarkdownRenderer } from 'quill-delta-render/renderers/markdown';
+import { parseQuillDelta } from 'quill-delta-renderer';
+import { MarkdownRenderer } from 'quill-delta-renderer/renderers/markdown';
 
 const ast = parseQuillDelta(delta);
 const md = new MarkdownRenderer().render(ast);
@@ -79,8 +79,8 @@ const md = new MarkdownRenderer().render(ast);
 ### React
 
 ```tsx
-import { parseQuillDelta } from 'quill-delta-render';
-import { ReactRenderer } from 'quill-delta-render/renderers/react';
+import { parseQuillDelta } from 'quill-delta-renderer';
+import { ReactRenderer } from 'quill-delta-renderer/renderers/react';
 
 const ast = parseQuillDelta(delta);
 const element = new ReactRenderer().render(ast);
@@ -105,12 +105,12 @@ Import only what you need -- unused renderers are never bundled:
 
 | Import path                             | Contents                                                                                  |
 | --------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `quill-delta-render`                    | Everything (barrel) including `parseQuillDelta`                                           |
-| `quill-delta-render/core`               | `parseDelta`, `DeltaParser`, `BaseRenderer`, `SimpleRenderer`, `applyTransformers`, types |
-| `quill-delta-render/common`             | Transformers, sanitizers, shared utilities                                                |
-| `quill-delta-render/renderers/html`     | `SemanticHtmlRenderer`, `QuillHtmlRenderer`                                               |
-| `quill-delta-render/renderers/markdown` | `MarkdownRenderer`                                                                        |
-| `quill-delta-render/renderers/react`    | `ReactRenderer`                                                                           |
+| `quill-delta-renderer`                    | Everything (barrel) including `parseQuillDelta`                                           |
+| `quill-delta-renderer/core`               | `parseDelta`, `DeltaParser`, `BaseRenderer`, `SimpleRenderer`, `applyTransformers`, types |
+| `quill-delta-renderer/common`             | Transformers, sanitizers, shared utilities                                                |
+| `quill-delta-renderer/renderers/html`     | `SemanticHtmlRenderer`, `QuillHtmlRenderer`                                               |
+| `quill-delta-renderer/renderers/markdown` | `MarkdownRenderer`                                                                        |
+| `quill-delta-renderer/renderers/react`    | `ReactRenderer`                                                                           |
 
 ## Configuration
 
@@ -178,7 +178,7 @@ parseQuillDelta(delta, {
 A transformer is a function that receives the root's children array and returns a new array. Use `applyTransformers` to run them against an AST:
 
 ```ts
-import type { TNode, Transformer } from 'quill-delta-render/core';
+import type { TNode, Transformer } from 'quill-delta-renderer/core';
 
 const imageGrouper: Transformer = (children: TNode[]) => {
   // group adjacent images into a gallery container
@@ -201,7 +201,7 @@ const ast = parseQuillDelta(delta, {
 For output formats that need HTML-style attribute collection (styles, classes, props), extend `BaseRenderer`:
 
 ```ts
-import { BaseRenderer } from 'quill-delta-render/core';
+import { BaseRenderer } from 'quill-delta-renderer/core';
 
 class JsonRenderer extends BaseRenderer<object, MyAttrs> {
   // implement abstract methods for your output format
@@ -211,7 +211,7 @@ class JsonRenderer extends BaseRenderer<object, MyAttrs> {
 For simpler formats without attribute collection (plain text, Markdown-like), extend `SimpleRenderer` which requires only 2 abstract methods (`joinChildren` and `renderText`):
 
 ```ts
-import { SimpleRenderer } from 'quill-delta-render/core';
+import { SimpleRenderer } from 'quill-delta-renderer/core';
 
 class PlainTextRenderer extends SimpleRenderer<string> {
   protected joinChildren(children: string[]) {

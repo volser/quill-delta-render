@@ -4,11 +4,11 @@
 // minimal set of types consumers need to call it. For everything else, use
 // the dedicated subpath exports:
 //
-//   import { parseDelta, DeltaParser, ... } from 'quill-delta-render/core';
-//   import { listGrouper, tableGrouper, ... } from 'quill-delta-render/common';
-//   import { SemanticHtmlRenderer, ... } from 'quill-delta-render/renderers/html';
-//   import { ReactRenderer } from 'quill-delta-render/renderers/react';
-//   import { MarkdownRenderer } from 'quill-delta-render/renderers/markdown';
+//   import { parseDelta, DeltaParser, ... } from 'quill-delta-renderer/core';
+//   import { listGrouper, tableGrouper, ... } from 'quill-delta-renderer/common';
+//   import { SemanticHtmlRenderer, ... } from 'quill-delta-renderer/renderers/html';
+//   import { ReactRenderer } from 'quill-delta-renderer/renderers/react';
+//   import { MarkdownRenderer } from 'quill-delta-renderer/renderers/markdown';
 
 // Core types needed alongside parseQuillDelta
 export type { Delta, TNode, Transformer } from './core/ast-types';

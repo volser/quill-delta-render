@@ -27,8 +27,8 @@ const EMPTY_STATE: ParseState = { blocks: [], buffer: [] };
  *
  * @example
  * ```ts
- * import { parseDelta, applyTransformers } from 'quill-delta-render/core';
- * import { listGrouper, tableGrouper } from 'quill-delta-render/common';
+ * import { parseDelta, applyTransformers } from 'quill-delta-renderer/core';
+ * import { listGrouper, tableGrouper } from 'quill-delta-renderer/common';
  *
  * const raw = parseDelta(delta, { blockAttributes: DEFAULT_BLOCK_ATTRIBUTES });
  * const ast = applyTransformers(raw, [listGrouper, tableGrouper]);
