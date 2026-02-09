@@ -1,6 +1,6 @@
-import { DEFAULT_MARK_PRIORITIES } from '../../common/default-mark-priorities';
-import type { RendererConfig, TNode } from '../../core/ast-types';
-import { BaseHtmlRenderer, escapeHtml } from './base-html-renderer';
+import { DEFAULT_MARK_PRIORITIES } from '../../../common/default-mark-priorities';
+import type { RendererConfig, TNode } from '../../../core/ast-types';
+import { BaseHtmlRenderer, escapeHtml } from '../base-html-renderer';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 

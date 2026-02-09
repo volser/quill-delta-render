@@ -20,5 +20,5 @@ export { applyTransformers, composeTransformers } from './core/transformer';
 
 // Renderers
 export { BaseHtmlRenderer, escapeHtml } from './renderers/html/base-html-renderer';
-export { QuillHtmlRenderer } from './renderers/html/quill';
-export { SemanticHtmlRenderer } from './renderers/html/semantic';
+export { QuillHtmlRenderer } from './renderers/html/quill/quill-html-renderer';
+export { SemanticHtmlRenderer } from './renderers/html/semantic/semantic-html-renderer';

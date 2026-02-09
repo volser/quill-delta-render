@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_BLOCK_ATTRIBUTES } from '../../common/default-block-attributes';
-import { listGrouper } from '../../common/transformers/list-grouper';
-import { tableGrouper } from '../../common/transformers/table-grouper';
-import type { Delta } from '../../core/ast-types';
-import { DeltaParser } from '../../core/parser';
-import { QuillHtmlRenderer } from './quill';
+import { DEFAULT_BLOCK_ATTRIBUTES } from '../../../common/default-block-attributes';
+import { listGrouper } from '../../../common/transformers/list-grouper';
+import { tableGrouper } from '../../../common/transformers/table-grouper';
+import type { Delta } from '../../../core/ast-types';
+import { DeltaParser } from '../../../core/parser';
+import { QuillHtmlRenderer } from './quill-html-renderer';
 
 const QUILL_CONFIG = { blockAttributes: DEFAULT_BLOCK_ATTRIBUTES };
 

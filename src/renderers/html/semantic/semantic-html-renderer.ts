@@ -1,6 +1,6 @@
-import { DEFAULT_MARK_PRIORITIES } from '../../common/default-mark-priorities';
-import type { RendererConfig } from '../../core/ast-types';
-import { BaseHtmlRenderer, escapeHtml } from './base-html-renderer';
+import { DEFAULT_MARK_PRIORITIES } from '../../../common/default-mark-priorities';
+import type { RendererConfig } from '../../../core/ast-types';
+import { BaseHtmlRenderer, escapeHtml } from '../base-html-renderer';
 
 const SEMANTIC_HTML_CONFIG: RendererConfig<string> = {
   markPriorities: DEFAULT_MARK_PRIORITIES,
@@ -77,7 +77,7 @@ const SEMANTIC_HTML_CONFIG: RendererConfig<string> = {
 /**
  * Renders an AST into clean, semantic HTML.
  *
- * Uses standard HTML5 tags: `<strong>`, `<em>`, `<h1>`–`<h6>`, `<blockquote>`, etc.
+ * Uses standard HTML5 tags: `<strong>`, `<em>`, `<h1>`-`<h6>`, `<blockquote>`, etc.
  * Suitable for CMS output, email, or any context where clean markup matters.
  *
  * @example

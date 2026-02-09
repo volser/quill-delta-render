@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_BLOCK_ATTRIBUTES } from '../../common/default-block-attributes';
-import type { Delta } from '../../core/ast-types';
-import { DeltaParser } from '../../core/parser';
-import { SemanticHtmlRenderer } from './semantic';
+import { DEFAULT_BLOCK_ATTRIBUTES } from '../../../common/default-block-attributes';
+import type { Delta } from '../../../core/ast-types';
+import { DeltaParser } from '../../../core/parser';
+import { SemanticHtmlRenderer } from './semantic-html-renderer';
 
 const QUILL_CONFIG = { blockAttributes: DEFAULT_BLOCK_ATTRIBUTES };
 
