@@ -14,7 +14,7 @@ import { groupConsecutiveElementsWhile } from '../utils/group-consecutive';
  * - blockquote: merged
  * - header: merged
  * - code-block: merged
- * - paragraph: NOT merged (each paragraph stays separate)
+ * - paragraph: merged
  */
 export interface BlockMergerConfig {
   /** Merge consecutive blockquotes. Default: `true` */
@@ -23,7 +23,7 @@ export interface BlockMergerConfig {
   multiLineHeader?: boolean;
   /** Merge consecutive same-language code blocks. Default: `true` */
   multiLineCodeblock?: boolean;
-  /** Merge consecutive paragraphs (same indent/align/direction). Default: `false` */
+  /** Merge consecutive paragraphs (same indent/align/direction). Default: `true` */
   multiLineParagraph?: boolean;
 }
 
@@ -31,16 +31,29 @@ const DEFAULT_CONFIG: Required<BlockMergerConfig> = {
   multiLineBlockquote: true,
   multiLineHeader: true,
   multiLineCodeblock: true,
-  multiLineParagraph: false,
+  multiLineParagraph: true,
 };
 
 // ─── Merge Logic ────────────────────────────────────────────────────────────
 
 /**
- * Returns a TNode that represents a line-break between merged blocks.
- * Renderers should handle this as a `<br/>` or newline separator.
+ * Returns a `line-break` node used as a separator between merged blocks.
+ * Renderers handle this as `<br/>` (HTML), `\n` (markdown), etc.
  */
-function createNewlineNode(): TNode {
+function createLineBreakNode(): TNode {
+  return {
+    type: 'line-break',
+    attributes: {},
+    children: [],
+    isInline: true,
+  };
+}
+
+/**
+ * Returns a text `\n` node used as a separator inside `<pre>` blocks
+ * where a literal newline is the correct visual break.
+ */
+function createNewlineTextNode(): TNode {
   return {
     type: 'text',
     attributes: {},
@@ -90,10 +103,14 @@ function mergeBlocks(blocks: TNode[]): TNode {
   const first = blocks[0]!;
   if (blocks.length === 1) return first;
 
+  // Code blocks live inside <pre> where literal \n is the correct separator.
+  // All other blocks use line-break nodes (rendered as <br/> in HTML).
+  const separator = first.type === 'code-block' ? createNewlineTextNode : createLineBreakNode;
+
   const mergedChildren: TNode[] = [];
   for (let i = 0; i < blocks.length; i++) {
     if (i > 0) {
-      mergedChildren.push(createNewlineNode());
+      mergedChildren.push(separator());
     }
     mergedChildren.push(...blocks[i]!.children);
   }
@@ -121,8 +138,8 @@ function mergeBlocks(blocks: TNode[]): TNode {
  *
  * @example
  * ```ts
- * // Merge everything including paragraphs
- * const ast = applyTransformers(rawAst, [blockMerger({ multiLineParagraph: true })]);
+ * // Disable paragraph merging
+ * const ast = applyTransformers(rawAst, [blockMerger({ multiLineParagraph: false })]);
  * ```
  */
 export function blockMerger(config?: BlockMergerConfig): Transformer {

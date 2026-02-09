@@ -11,24 +11,19 @@
  * ┌──────────────────────────────────────────────────────────────────────┐
  * │                   REMAINING KNOWN DIFFERENCES                       │
  * │                                                                     │
- * │  1. Multi-newline inserts  (resolvable via softLineBreaks: true)     │
- * │     Default: { insert:'A\nB\n' } → <p>A</p><p>B</p>              │
- * │     Legacy:  → <p>A<br/>B</p>                                      │
- * │     Fix: parseQuillDelta(delta, { softLineBreaks: true })           │
- * │                                                                     │
- * │  2. Code block `ql-syntax` class                                    │
+ * │  1. Code block `ql-syntax` class                                    │
  * │     Legacy: <pre>code</pre>  (no class)                            │
  * │     Semantic: <pre class="ql-syntax">code</pre>                    │
  * │     Reason: Matches Quill editor output. Used by syntax             │
  * │     highlighting libraries (highlight.js, Prism). Legacy omits it.  │
  * │                                                                     │
- * │  3. Images: `ql-image` class and `alt` attribute                    │
+ * │  2. Images: `ql-image` class and `alt` attribute                    │
  * │     Legacy: <img class="ql-image" src="…"/> (drops alt)            │
  * │     Semantic: <img alt="…" src="…"/>  (preserves alt, no class)    │
  * │     Reason: `alt` is essential for accessibility. `ql-image`        │
  * │     is a Quill-internal class with no semantic value.               │
  * │                                                                     │
- * │  All three are intentional design choices where our renderer is     │
+ * │  Both are intentional design choices where our renderer is          │
  * │  more correct than quill-delta-to-html.                             │
  * └──────────────────────────────────────────────────────────────────────┘
  */
@@ -549,41 +544,26 @@ describe('qdthtml compat: complex mixed content', () => {
 //      `alt` (accessibility regression) and adds an unnecessary class.
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('qdthtml known differences: multi-newline inserts', () => {
-  // By default, our parser treats each \n as a paragraph boundary,
-  // matching the Quill editor's DOM: <p>A</p><p>B</p>.
-  // quill-delta-to-html renders { insert: 'A\nB\n' } as <p>A<br/>B</p>.
-  //
-  // Enable `softLineBreaks: true` in parseQuillDelta to match legacy behavior.
+describe('qdthtml compat: multi-newline inserts', () => {
+  // blockMerger (included in parseQuillDelta by default) merges
+  // consecutive paragraphs with <br/> — matching quill-delta-to-html.
 
-  it('default: separate paragraphs per newline', () => {
-    const delta: Delta = { ops: [{ insert: 'Line 1\nLine 2\nLine 3\n' }] };
-
-    expect(renderSemantic(delta)).toBe('<p>Line 1</p><p>Line 2</p><p>Line 3</p>');
-    expect(renderLegacy(delta)).toBe('<p>Line 1<br/>Line 2<br/>Line 3</p>');
+  it('multiple lines in single insert', () => {
+    assertMatch({ ops: [{ insert: 'Line 1\nLine 2\nLine 3\n' }] });
   });
 
-  it('softLineBreaks: matches legacy with <br/> inside single <p>', () => {
-    const delta: Delta = { ops: [{ insert: 'Line 1\nLine 2\nLine 3\n' }] };
-
-    const ast = parseQuillDelta(delta, { softLineBreaks: true });
-    expect(renderer.render(ast)).toBe('<p>Line 1<br/>Line 2<br/>Line 3</p>');
-    expect(renderLegacy(delta)).toBe('<p>Line 1<br/>Line 2<br/>Line 3</p>');
+  it('multiple lines in separate inserts', () => {
+    assertMatch({ ops: [{ insert: 'Line 1\n' }, { insert: 'Line 2\n' }, { insert: 'Line 3\n' }] });
   });
 
-  it('default: separate empty paragraphs', () => {
-    const delta: Delta = { ops: [{ insert: '\n\n\n' }] };
-
-    expect(renderSemantic(delta)).toBe('<p><br/></p><p><br/></p><p><br/></p>');
-    expect(renderLegacy(delta)).toBe('<p><br/><br/></p>');
+  it('empty paragraphs', () => {
+    assertMatch({ ops: [{ insert: '\n\n\n' }] });
   });
 
-  it('softLineBreaks: matches legacy for empty paragraphs', () => {
-    const delta: Delta = { ops: [{ insert: '\n\n\n' }] };
-
-    const ast = parseQuillDelta(delta, { softLineBreaks: true });
-    expect(renderer.render(ast)).toBe('<p><br/><br/></p>');
-    expect(renderLegacy(delta)).toBe('<p><br/><br/></p>');
+  it('opt-out: blockMerger disabled produces separate paragraphs', () => {
+    const delta: Delta = { ops: [{ insert: 'A\nB\n' }] };
+    const ast = parseQuillDelta(delta, { blockMerger: { multiLineParagraph: false } });
+    expect(renderer.render(ast)).toBe('<p>A</p><p>B</p>');
   });
 });
 

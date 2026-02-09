@@ -1,4 +1,6 @@
 import { DEFAULT_BLOCK_ATTRIBUTES } from './common/default-block-attributes';
+import type { BlockMergerConfig } from './common/transformers/block-merger';
+import { blockMerger } from './common/transformers/block-merger';
 import { codeBlockGrouper } from './common/transformers/code-block-grouper';
 import { listGrouper } from './common/transformers/list-grouper';
 import { tableGrouper } from './common/transformers/table-grouper';
@@ -24,20 +26,19 @@ export interface ParseQuillDeltaOptions {
   blockEmbeds?: string[];
 
   /**
-   * When `true`, newlines within a single text insert that would create
-   * plain paragraphs become inline `line-break` nodes instead of paragraph
-   * boundaries.
+   * Configuration for the {@link blockMerger} transformer that merges
+   * consecutive same-style blocks (paragraphs, blockquotes, headers,
+   * code blocks) into single blocks with `<br/>` separators.
    *
-   * This matches `quill-delta-to-html` behavior where `{ insert: 'A\nB\n' }`
-   * produces `<p>A<br/>B</p>` instead of `<p>A</p><p>B</p>`.
+   * Pass `false` to disable the block merger entirely.
    *
-   * @default false
+   * @default { multiLineParagraph: true, multiLineBlockquote: true, multiLineHeader: true, multiLineCodeblock: true }
    */
-  softLineBreaks?: boolean;
+  blockMerger?: BlockMergerConfig | false;
 
   /**
    * Additional transformers appended after the standard ones
-   * (listGrouper, tableGrouper, codeBlockGrouper).
+   * (listGrouper, tableGrouper, codeBlockGrouper, blockMerger).
    */
   extraTransformers?: Transformer[];
 
@@ -48,14 +49,21 @@ export interface ParseQuillDeltaOptions {
   transformers?: Transformer[];
 }
 
-const STANDARD_TRANSFORMERS: Transformer[] = [listGrouper, tableGrouper, codeBlockGrouper];
+function buildStandardTransformers(mergerConfig?: BlockMergerConfig | false): Transformer[] {
+  const transformers: Transformer[] = [listGrouper, tableGrouper, codeBlockGrouper];
+  if (mergerConfig !== false) {
+    transformers.push(blockMerger(mergerConfig));
+  }
+  return transformers;
+}
 
 /**
  * One-call convenience function: parses a Quill Delta into a fully
  * transformed AST ready for rendering.
  *
  * Bundles `DEFAULT_BLOCK_ATTRIBUTES`, `listGrouper`, `tableGrouper`,
- * and `codeBlockGrouper` so the 80% use case is a single function call.
+ * `codeBlockGrouper`, and `blockMerger` so the 80% use case is a single
+ * function call.
  *
  * @example
  * ```ts
@@ -84,13 +92,12 @@ export function parseQuillDelta(delta: Delta, options?: ParseQuillDeltaOptions):
       ...options?.extraBlockAttributes,
     },
     blockEmbeds: options?.blockEmbeds ?? ['video'],
-    softLineBreaks: options?.softLineBreaks,
   };
 
   const rawAst = parseDelta(delta, config);
 
   const transformers = options?.transformers ?? [
-    ...STANDARD_TRANSFORMERS,
+    ...buildStandardTransformers(options?.blockMerger),
     ...(options?.extraTransformers ?? []),
   ];
 

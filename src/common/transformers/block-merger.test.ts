@@ -27,7 +27,7 @@ describe('blockMerger', () => {
           { insert: '\n', attributes: { blockquote: true } },
         ],
       });
-      expect(html).toBe('<blockquote>line 1\nline 2</blockquote>');
+      expect(html).toBe('<blockquote>line 1<br/>line 2</blockquote>');
     });
 
     it('should not merge blockquotes when disabled', () => {
@@ -56,7 +56,7 @@ describe('blockMerger', () => {
           { insert: '\n', attributes: { header: 2 } },
         ],
       });
-      expect(html).toBe('<h2>Title A\nTitle B</h2>');
+      expect(html).toBe('<h2>Title A<br/>Title B</h2>');
     });
 
     it('should not merge different header levels', () => {
@@ -131,19 +131,19 @@ describe('blockMerger', () => {
   });
 
   describe('paragraphs', () => {
-    it('should NOT merge paragraphs by default', () => {
+    it('should merge paragraphs by default', () => {
       const html = renderWithMerger({
         ops: [{ insert: 'line 1\nline 2\n' }],
       });
-      expect(html).toBe('<p>line 1</p><p>line 2</p>');
+      expect(html).toBe('<p>line 1<br/>line 2</p>');
     });
 
-    it('should merge paragraphs when enabled', () => {
+    it('should NOT merge paragraphs when disabled', () => {
       const html = renderWithMerger(
         { ops: [{ insert: 'line 1\nline 2\n' }] },
-        { multiLineParagraph: true },
+        { multiLineParagraph: false },
       );
-      expect(html).toBe('<p>line 1\nline 2</p>');
+      expect(html).toBe('<p>line 1</p><p>line 2</p>');
     });
 
     it('should not merge paragraphs with different alignments', () => {
@@ -203,7 +203,7 @@ describe('blockMerger', () => {
           { insert: '\n', attributes: { blockquote: true } },
         ],
       });
-      expect(html).toBe('<blockquote>q1\nq2</blockquote><p>para</p><blockquote>q3</blockquote>');
+      expect(html).toBe('<blockquote>q1<br/>q2</blockquote><p>para</p><blockquote>q3</blockquote>');
     });
   });
 });
