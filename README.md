@@ -230,6 +230,12 @@ The library ships two HTML renderers:
 - **`SemanticHtmlRenderer`** -- produces clean semantic HTML with full configuration. Recommended for new projects.
 - **`QuillHtmlRenderer`** -- produces HTML matching `quill-delta-to-html` output. Use for backward compatibility.
 
+## Performance
+
+**2-5x faster** than `quill-delta-to-html` across all scenarios. For a realistic mixed-content document the renderer is **3.65x faster**.
+
+See [BENCHMARKS.md](./BENCHMARKS.md) for full results and methodology.
+
 ## License
 
 MIT
