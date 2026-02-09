@@ -1,9 +1,17 @@
 import { DEFAULT_MARK_PRIORITIES } from '../../../../common/default-mark-priorities';
 import type { RendererConfig } from '../../../../core/ast-types';
+import { buildAttrString } from '../../common/build-attr-string';
+import {
+  boldMark,
+  codeMark,
+  italicMark,
+  scriptMark,
+  strikeMark,
+  underlineMark,
+} from '../../common/simple-marks';
 import { DEFAULT_INLINE_STYLES } from '../consts/default-inline-styles';
 import type { ResolvedConfig } from '../types/resolved-config';
 import type { InlineStyleConverter } from '../types/semantic-html-config';
-import { buildAttrString } from './build-attr-string';
 import { buildBlockAttrs } from './build-block-attrs';
 import { encodeText } from './encode-text';
 import { resolveInlineStyle } from './resolve-inline-style';
@@ -181,10 +189,10 @@ export function buildRendererConfig(cfg: ResolvedConfig): RendererConfig<string>
     },
 
     marks: {
-      bold: (content) => `<strong>${content}</strong>`,
-      italic: (content) => `<em>${content}</em>`,
-      underline: (content) => `<u>${content}</u>`,
-      strike: (content) => `<s>${content}</s>`,
+      bold: boldMark,
+      italic: italicMark,
+      underline: underlineMark,
+      strike: strikeMark,
 
       link: (content, value, node) => {
         const rawHref = String(value);
@@ -219,12 +227,9 @@ export function buildRendererConfig(cfg: ResolvedConfig): RendererConfig<string>
         return `<span style="background-color:${encodeText(String(value), cfg)}">${content}</span>`;
       },
 
-      script: (content, value) => {
-        const tag = value === 'super' ? 'sup' : 'sub';
-        return `<${tag}>${content}</${tag}>`;
-      },
+      script: scriptMark,
 
-      code: (content) => `<code>${content}</code>`,
+      code: codeMark,
 
       font: (content, value, node) => {
         if (cfg.inlineStyles !== false) {

@@ -11,3 +11,12 @@ export function buildAttrString(attrs: Record<string, string>): string {
   }
   return parts.length > 0 ? ` ${parts.join(' ')}` : '';
 }
+
+/**
+ * Build an HTML class attribute string from an array of class names.
+ * Falsy/empty values are filtered. Returns a leading space if non-empty.
+ */
+export function buildClassAttr(classes: string[]): string {
+  const filtered = classes.filter(Boolean);
+  return filtered.length > 0 ? ` class="${filtered.join(' ')}"` : '';
+}

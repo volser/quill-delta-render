@@ -1,6 +1,6 @@
 import type { TNode } from '../../../../core/ast-types';
+import { buildAttrString } from '../../common/build-attr-string';
 import type { ResolvedConfig } from '../types/resolved-config';
-import { buildAttrString } from './build-attr-string';
 import { getBlockClasses } from './get-block-classes';
 import { getBlockStyles } from './get-block-styles';
 
