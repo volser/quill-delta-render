@@ -30,7 +30,7 @@ function withKey(child: ReactNode, index: number): ReactNode {
  *
  * @example
  * ```tsx
- * import { ReactRenderer } from 'quill-delta-renderer/renderers/react';
+ * import { ReactRenderer } from 'quill-delta-renderer/react';
  *
  * const renderer = new ReactRenderer();
  * const element = renderer.render(ast);

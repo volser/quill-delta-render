@@ -6,9 +6,9 @@
 //
 //   import { parseDelta, DeltaParser, ... } from 'quill-delta-renderer/core';
 //   import { listGrouper, tableGrouper, ... } from 'quill-delta-renderer/common';
-//   import { SemanticHtmlRenderer, ... } from 'quill-delta-renderer/renderers/html';
-//   import { ReactRenderer } from 'quill-delta-renderer/renderers/react';
-//   import { MarkdownRenderer } from 'quill-delta-renderer/renderers/markdown';
+//   import { SemanticHtmlRenderer, ... } from 'quill-delta-renderer/html';
+//   import { ReactRenderer } from 'quill-delta-renderer/react';
+//   import { MarkdownRenderer } from 'quill-delta-renderer/markdown';
 
 // Core types needed alongside parseQuillDelta
 export type { Delta, TNode, Transformer } from './core/ast-types';

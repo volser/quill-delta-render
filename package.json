@@ -37,7 +37,7 @@
         "default": "./dist/common/index.cjs"
       }
     },
-    "./renderers/html": {
+    "./html": {
       "import": {
         "types": "./dist/renderers/html/index.d.ts",
         "default": "./dist/renderers/html/index.js"
@@ -47,7 +47,7 @@
         "default": "./dist/renderers/html/index.cjs"
       }
     },
-    "./renderers/react": {
+    "./react": {
       "import": {
         "types": "./dist/renderers/react/index.d.ts",
         "default": "./dist/renderers/react/index.js"
@@ -57,7 +57,7 @@
         "default": "./dist/renderers/react/index.cjs"
       }
     },
-    "./renderers/markdown": {
+    "./markdown": {
       "import": {
         "types": "./dist/renderers/markdown/index.d.ts",
         "default": "./dist/renderers/markdown/index.js"

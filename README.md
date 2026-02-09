@@ -30,7 +30,7 @@ The fastest way to get started -- `parseQuillDelta` bundles the standard parser 
 
 ```ts
 import { parseQuillDelta } from 'quill-delta-renderer';
-import { SemanticHtmlRenderer } from 'quill-delta-renderer/renderers/html';
+import { SemanticHtmlRenderer } from 'quill-delta-renderer/html';
 
 const delta = { ops: [{ insert: 'Hello, world!\n' }] };
 
@@ -51,7 +51,7 @@ import {
   codeBlockGrouper,
   tableGrouper,
 } from 'quill-delta-renderer/common';
-import { SemanticHtmlRenderer } from 'quill-delta-renderer/renderers/html';
+import { SemanticHtmlRenderer } from 'quill-delta-renderer/html';
 
 const delta = { ops: [{ insert: 'Hello, world!\n' }] };
 
@@ -70,7 +70,7 @@ const html = new SemanticHtmlRenderer().render(ast);
 
 ```ts
 import { parseQuillDelta } from 'quill-delta-renderer';
-import { MarkdownRenderer } from 'quill-delta-renderer/renderers/markdown';
+import { MarkdownRenderer } from 'quill-delta-renderer/markdown';
 
 const ast = parseQuillDelta(delta);
 const md = new MarkdownRenderer().render(ast);
@@ -80,7 +80,7 @@ const md = new MarkdownRenderer().render(ast);
 
 ```tsx
 import { parseQuillDelta } from 'quill-delta-renderer';
-import { ReactRenderer } from 'quill-delta-renderer/renderers/react';
+import { ReactRenderer } from 'quill-delta-renderer/react';
 
 const ast = parseQuillDelta(delta);
 const element = new ReactRenderer().render(ast);
@@ -108,9 +108,9 @@ Import only what you need -- unused renderers are never bundled:
 | `quill-delta-renderer`                    | Everything (barrel) including `parseQuillDelta`                                           |
 | `quill-delta-renderer/core`               | `parseDelta`, `DeltaParser`, `BaseRenderer`, `SimpleRenderer`, `applyTransformers`, types |
 | `quill-delta-renderer/common`             | Transformers, sanitizers, shared utilities                                                |
-| `quill-delta-renderer/renderers/html`     | `SemanticHtmlRenderer`, `QuillHtmlRenderer`                                               |
-| `quill-delta-renderer/renderers/markdown` | `MarkdownRenderer`                                                                        |
-| `quill-delta-renderer/renderers/react`    | `ReactRenderer`                                                                           |
+| `quill-delta-renderer/html`     | `SemanticHtmlRenderer`, `QuillHtmlRenderer`                                               |
+| `quill-delta-renderer/markdown` | `MarkdownRenderer`                                                                        |
+| `quill-delta-renderer/react`    | `ReactRenderer`                                                                           |
 
 ## Configuration
 
