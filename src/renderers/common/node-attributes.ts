@@ -1,61 +1,73 @@
 /**
- * Typed attribute accessors for well-known TNode attributes.
+ * Type-safe attribute accessors for well-known TNode attributes.
  *
- * These eliminate `as` casts scattered across renderers by centralizing
- * the attribute-name-to-type mapping in one place.
+ * Each accessor validates the runtime value with `typeof` checks instead
+ * of blindly casting with `as`. If the attribute is missing or has the
+ * wrong type, the accessor returns the documented fallback (typically
+ * `undefined` or a sensible default like `''` / `0`).
  */
 import type { TNode } from '../../core/ast-types';
 
-// ─── Block-level attributes ─────────────────────────────────────────────────
+// ─── Primitive guards ───────────────────────────────────────────────────────
 
-/** Get the header level (1–6) from a header node. */
-export function getHeaderLevel(node: TNode): number {
-  return node.attributes.header as number;
+function asString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
 }
 
-/** Get the list type string (`'ordered'`, `'bullet'`, `'checked'`, `'unchecked'`). */
+function asNumber(value: unknown): number | undefined {
+  return typeof value === 'number' ? value : undefined;
+}
+
+// ─── Block-level attributes ─────────────────────────────────────────────────
+
+/** Get the header level (1–6) from a header node. Returns `0` if missing/invalid. */
+export function getHeaderLevel(node: TNode): number {
+  return asNumber(node.attributes.header) ?? 0;
+}
+
+/** Get the list type string (`'ordered'`, `'bullet'`, `'checked'`, `'unchecked'`). Returns `''` if missing. */
 export function getListType(node: TNode): string {
-  return node.attributes.list as string;
+  return asString(node.attributes.list) ?? '';
 }
 
 /** Get the table row identifier, if present. */
 export function getTableRow(node: TNode): string | undefined {
-  return node.attributes.table as string | undefined;
+  return asString(node.attributes.table);
 }
 
 /** Get the text direction (`'rtl'`), if set. */
 export function getDirection(node: TNode): string | undefined {
-  return node.attributes.direction as string | undefined;
+  return asString(node.attributes.direction);
 }
 
 /** Get the text alignment (`'center'`, `'right'`, `'justify'`), if set. */
 export function getAlign(node: TNode): string | undefined {
-  return node.attributes.align as string | undefined;
+  return asString(node.attributes.align);
 }
 
 /** Get the indent level, if set. */
 export function getIndent(node: TNode): number | undefined {
-  return node.attributes.indent as number | undefined;
+  return asNumber(node.attributes.indent);
 }
 
 // ─── Inline / embed attributes ──────────────────────────────────────────────
 
-/** Get the alt text from an image node. */
+/** Get the alt text from an image node. Returns `''` if missing. */
 export function getAlt(node: TNode): string {
-  return (node.attributes.alt as string) ?? '';
+  return asString(node.attributes.alt) ?? '';
 }
 
 /** Get the link URL from a node's `link` attribute. */
 export function getLinkHref(node: TNode): string | undefined {
-  return node.attributes.link as string | undefined;
+  return asString(node.attributes.link);
 }
 
 /** Get the width attribute. */
 export function getWidth(node: TNode): string | undefined {
-  return node.attributes.width as string | undefined;
+  return asString(node.attributes.width);
 }
 
 /** Get the height attribute. */
 export function getHeight(node: TNode): string | undefined {
-  return node.attributes.height as string | undefined;
+  return asString(node.attributes.height);
 }
