@@ -37,9 +37,8 @@ describe('MarkdownRenderer – inline formatting', () => {
     const md = renderDelta(
       d({ insert: 'text', attributes: { bold: true, italic: true } }, { insert: '\n' }),
     );
-    // Both bold and italic have equal priority (10), so nesting order
-    // depends on attribute iteration order. Either form is valid markdown.
-    expect(md).toBe('_**text**_');
+    // bold has higher priority than italic, so bold wraps outer.
+    expect(md).toBe('**_text_**');
   });
 
   it('should ignore color, background, underline, font, size', () => {

@@ -27,6 +27,9 @@ function getCustomTagAttributes(node: TNode, cfg: ResolvedConfig): Record<string
  * Build the full HTML attribute string for a block node, combining
  * custom classes/styles/attrs, extra classes/styles/attrs, and
  * config-driven block classes/styles.
+ *
+ * @param skipIndent - When true, omit the `ql-indent-N` class from layout
+ *   classes. Used for list items where DOM nesting already conveys the level.
  */
 export function buildBlockAttrs(
   node: TNode,
@@ -34,12 +37,17 @@ export function buildBlockAttrs(
   extraClasses?: string[],
   extraStyles?: string[],
   extraAttrs?: Record<string, string>,
+  skipIndent?: boolean,
 ): string {
-  const classes = [
-    ...getCustomClasses(node, cfg),
-    ...(extraClasses ?? []),
-    ...getBlockClasses(node, cfg),
-  ].filter(Boolean);
+  let blockClasses = getBlockClasses(node, cfg);
+  if (skipIndent) {
+    const indentPrefix = `${cfg.classPrefix}-indent-`;
+    blockClasses = blockClasses.filter((c) => !c.startsWith(indentPrefix));
+  }
+
+  const classes = [...getCustomClasses(node, cfg), ...(extraClasses ?? []), ...blockClasses].filter(
+    Boolean,
+  );
 
   const styles = [
     ...getCustomStyles(node, cfg),

@@ -188,7 +188,8 @@ export function buildRendererConfig(cfg: ResolvedConfig): RendererConfig<string,
           extraAttrs['data-checked'] = checked;
         }
 
-        const attrStr = buildBlockAttrs(node, cfg, undefined, undefined, extraAttrs);
+        // Skip indent class — nested <ul>/<ol> structure already conveys the level
+        const attrStr = buildBlockAttrs(node, cfg, undefined, undefined, extraAttrs, true);
         return `<${tag}${attrStr}>${content}</${tag}>`;
       }),
 

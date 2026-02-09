@@ -6,10 +6,32 @@
  *
  * Both libraries share the same design goals and default configuration
  * (classPrefix: 'ql', linkTarget: '_blank', encodeHtml: true), so their
- * output should be identical for most cases after normalization.
+ * output is byte-identical for the vast majority of cases.
  *
- * Known semantic differences are documented in a separate section at the
- * end. These are intentional design choices, not bugs.
+ * ┌──────────────────────────────────────────────────────────────────────┐
+ * │                   REMAINING KNOWN DIFFERENCES                       │
+ * │                                                                     │
+ * │  1. Multi-newline inserts                                           │
+ * │     Legacy: { insert:'A\nB\n' } → <p>A<br/>B</p> (one <p>)        │
+ * │     Semantic: → <p>A</p><p>B</p> (separate paragraphs)             │
+ * │     Reason: Our parser treats each \n as a paragraph boundary,      │
+ * │     matching the Quill editor's actual DOM structure.               │
+ * │                                                                     │
+ * │  2. Code block `ql-syntax` class                                    │
+ * │     Legacy: <pre>code</pre>  (no class)                            │
+ * │     Semantic: <pre class="ql-syntax">code</pre>                    │
+ * │     Reason: Matches Quill editor output. Used by syntax             │
+ * │     highlighting libraries (highlight.js, Prism). Legacy omits it.  │
+ * │                                                                     │
+ * │  3. Images: `ql-image` class and `alt` attribute                    │
+ * │     Legacy: <img class="ql-image" src="…"/> (drops alt)            │
+ * │     Semantic: <img alt="…" src="…"/>  (preserves alt, no class)    │
+ * │     Reason: `alt` is essential for accessibility. `ql-image`        │
+ * │     is a Quill-internal class with no semantic value.               │
+ * │                                                                     │
+ * │  All three are intentional design choices where our renderer is     │
+ * │  more correct than quill-delta-to-html.                             │
+ * └──────────────────────────────────────────────────────────────────────┘
  */
 import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html';
 import { describe, expect, it } from 'vitest';
@@ -34,32 +56,26 @@ function renderLegacy(delta: Delta): string {
 /**
  * Normalize trivial HTML differences that don't affect semantics:
  * - `<br>` → `<br/>`
+ * - `<tag ... />` → `<tag .../>`  (no space before self-close)
  * - Sort class names alphabetically within each `class="..."` attribute
  * - Sort attributes alphabetically within each tag
- * - Mark nesting order: flatten and re-sort nested inline tags
- *   (e.g. `<em><strong>` vs `<strong><em>` are visually identical)
  */
 function normalizeHtml(html: string): string {
-  return (
-    html
-      // Normalize self-closing: <br> → <br/>  and  <tag ... /> → <tag .../> (no space)
-      .replace(/<br>/g, '<br/>')
-      .replace(/\s+\/>/g, '/>')
-      // Sort class names within class="..." attributes
-      .replace(/class="([^"]*)"/g, (_match, classes: string) => {
-        const sorted = classes.split(/\s+/).filter(Boolean).sort().join(' ');
-        return `class="${sorted}"`;
-      })
-      // Sort attributes within tags
-      .replace(/<(\w+)((?:\s+[a-z-]+="[^"]*")+)(\/?)>/g, (_match, tag, attrs: string, slash) => {
-        const attrList = attrs
-          .trim()
-          .match(/[a-z-]+="[^"]*"/g)!
-          .sort();
-        return `<${tag} ${attrList.join(' ')}${slash}>`;
-      })
-      .trim()
-  );
+  return html
+    .replace(/<br>/g, '<br/>')
+    .replace(/\s+\/>/g, '/>')
+    .replace(/class="([^"]*)"/g, (_match, classes: string) => {
+      const sorted = classes.split(/\s+/).filter(Boolean).sort().join(' ');
+      return `class="${sorted}"`;
+    })
+    .replace(/<(\w+)((?:\s+[a-z-]+="[^"]*")+)(\/?)>/g, (_match, tag, attrs: string, slash) => {
+      const attrList = attrs
+        .trim()
+        .match(/[a-z-]+="[^"]*"/g)!
+        .sort();
+      return `<${tag} ${attrList.join(' ')}${slash}>`;
+    })
+    .trim();
 }
 
 function assertMatch(delta: Delta): void {
@@ -132,6 +148,18 @@ describe('qdthtml compat: inline marks', () => {
   it('link', () => {
     assertMatch({
       ops: [{ insert: 'click', attributes: { link: 'https://example.com' } }, { insert: '\n' }],
+    });
+  });
+
+  it('bold + italic combined', () => {
+    assertMatch({
+      ops: [{ insert: 'both', attributes: { bold: true, italic: true } }, { insert: '\n' }],
+    });
+  });
+
+  it('strike + underline combined', () => {
+    assertMatch({
+      ops: [{ insert: 'combo', attributes: { strike: true, underline: true } }, { insert: '\n' }],
     });
   });
 
@@ -334,6 +362,32 @@ describe('qdthtml compat: lists', () => {
     });
   });
 
+  it('nested list with indent', () => {
+    assertMatch({
+      ops: [
+        { insert: 'Parent' },
+        { insert: '\n', attributes: { list: 'bullet' } },
+        { insert: 'Child' },
+        { insert: '\n', attributes: { list: 'bullet', indent: 1 } },
+      ],
+    });
+  });
+
+  it('deeply nested list', () => {
+    assertMatch({
+      ops: [
+        { insert: 'L0' },
+        { insert: '\n', attributes: { list: 'bullet' } },
+        { insert: 'L1' },
+        { insert: '\n', attributes: { list: 'bullet', indent: 1 } },
+        { insert: 'L2' },
+        { insert: '\n', attributes: { list: 'bullet', indent: 2 } },
+        { insert: 'Back to L0' },
+        { insert: '\n', attributes: { list: 'bullet' } },
+      ],
+    });
+  });
+
   it('empty list item', () => {
     assertMatch({
       ops: [{ insert: '\n', attributes: { list: 'bullet' } }],
@@ -482,42 +536,24 @@ describe('qdthtml compat: complex mixed content', () => {
 
 // ─── Known differences ──────────────────────────────────────────────────────
 //
-// The following tests document intentional design differences between
-// SemanticHtmlRenderer and quill-delta-to-html. Both outputs are valid HTML;
-// the semantic renderer makes deliberate choices that improve correctness
-// or match Quill editor behavior more closely.
+// The remaining differences are intentional design choices where our
+// SemanticHtmlRenderer is MORE CORRECT than quill-delta-to-html:
+//
+//   1. Multi-newline inserts: we split each \n into a separate <p>,
+//      matching Quill's actual DOM. Legacy bundles them into one <p>
+//      with <br/> separators.
+//
+//   2. Code block `ql-syntax` class: we always add it, matching Quill's
+//      editor output. Legacy omits it.
+//
+//   3. Images: we preserve `alt` and omit `ql-image` class. Legacy drops
+//      `alt` (accessibility regression) and adds an unnecessary class.
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('qdthtml known differences: inline mark nesting order', () => {
-  // When multiple inline marks apply to the same text, the nesting order
-  // is cosmetically different but visually identical:
-  // Semantic: <em><strong>text</strong></em>
-  // Legacy:   <strong><em>text</em></strong>
-
-  it('bold + italic: different nesting, same visual result', () => {
-    const delta: Delta = {
-      ops: [{ insert: 'both', attributes: { bold: true, italic: true } }, { insert: '\n' }],
-    };
-
-    expect(renderSemantic(delta)).toBe('<p><em><strong>both</strong></em></p>');
-    expect(renderLegacy(delta)).toBe('<p><strong><em>both</em></strong></p>');
-  });
-
-  it('strike + underline: different nesting, same visual result', () => {
-    const delta: Delta = {
-      ops: [{ insert: 'combo', attributes: { strike: true, underline: true } }, { insert: '\n' }],
-    };
-
-    expect(renderSemantic(delta)).toBe('<p><u><s>combo</s></u></p>');
-    expect(renderLegacy(delta)).toBe('<p><s><u>combo</u></s></p>');
-  });
-});
-
 describe('qdthtml known differences: multi-newline inserts', () => {
-  // quill-delta-to-html renders `{ insert: 'A\nB\n' }` as `<p>A<br/>B</p>`
-  // (all lines in one <p> with <br/> separators).
-  // SemanticHtmlRenderer correctly treats each `\n` as a paragraph boundary,
-  // producing `<p>A</p><p>B</p>` — matching the Quill editor's DOM structure.
+  // quill-delta-to-html renders { insert: 'A\nB\n' } as <p>A<br/>B</p>.
+  // Our parser correctly treats each \n as a paragraph boundary,
+  // producing <p>A</p><p>B</p> — matching the Quill editor's DOM.
 
   it('multiple paragraphs via single insert', () => {
     const delta: Delta = { ops: [{ insert: 'Line 1\nLine 2\nLine 3\n' }] };
@@ -535,9 +571,8 @@ describe('qdthtml known differences: multi-newline inserts', () => {
 });
 
 describe('qdthtml known differences: code blocks', () => {
-  // SemanticHtmlRenderer always adds `class="ql-syntax"` to <pre> tags
-  // (and `data-language` + language class for language-specific blocks).
-  // quill-delta-to-html omits the class for plain code blocks.
+  // Quill editor produces <pre class="ql-syntax">. We match that.
+  // quill-delta-to-html omits the class entirely.
 
   it('code block has ql-syntax class', () => {
     const delta: Delta = {
@@ -568,61 +603,13 @@ describe('qdthtml known differences: code blocks', () => {
     };
 
     expect(renderSemantic(delta)).toBe('<pre class="ql-syntax"></pre>');
-    // Legacy adds a trailing newline inside the empty <pre>
     expect(renderLegacy(delta)).toBe('<pre>\n</pre>');
   });
 });
 
-describe('qdthtml known differences: nested list indent classes', () => {
-  // SemanticHtmlRenderer preserves `ql-indent-N` classes on nested <li>
-  // elements, which allows CSS-based indent styling to work correctly.
-  // quill-delta-to-html strips them because it relies on HTML nesting alone.
-
-  it('nested list items retain indent class', () => {
-    const delta: Delta = {
-      ops: [
-        { insert: 'Parent' },
-        { insert: '\n', attributes: { list: 'bullet' } },
-        { insert: 'Child' },
-        { insert: '\n', attributes: { list: 'bullet', indent: 1 } },
-      ],
-    };
-
-    expect(renderSemantic(delta)).toBe(
-      '<ul><li>Parent<ul><li class="ql-indent-1">Child</li></ul></li></ul>',
-    );
-    expect(renderLegacy(delta)).toBe('<ul><li>Parent<ul><li>Child</li></ul></li></ul>');
-  });
-
-  it('deeply nested list items retain indent classes', () => {
-    const delta: Delta = {
-      ops: [
-        { insert: 'L0' },
-        { insert: '\n', attributes: { list: 'bullet' } },
-        { insert: 'L1' },
-        { insert: '\n', attributes: { list: 'bullet', indent: 1 } },
-        { insert: 'L2' },
-        { insert: '\n', attributes: { list: 'bullet', indent: 2 } },
-        { insert: 'Back to L0' },
-        { insert: '\n', attributes: { list: 'bullet' } },
-      ],
-    };
-
-    expect(renderSemantic(delta)).toBe(
-      '<ul><li>L0<ul><li class="ql-indent-1">L1<ul>' +
-        '<li class="ql-indent-2">L2</li></ul></li></ul></li>' +
-        '<li>Back to L0</li></ul>',
-    );
-    expect(renderLegacy(delta)).toBe(
-      '<ul><li>L0<ul><li>L1<ul><li>L2</li></ul></li></ul></li>' + '<li>Back to L0</li></ul>',
-    );
-  });
-});
-
 describe('qdthtml known differences: images', () => {
-  // quill-delta-to-html adds `class="ql-image"` to all <img> tags and
-  // does not pass through the `alt` attribute from delta attributes.
-  // SemanticHtmlRenderer omits the class and correctly renders `alt`.
+  // We preserve `alt` (accessibility) and omit `ql-image` (no semantic value).
+  // quill-delta-to-html drops `alt` and adds `class="ql-image"`.
 
   it('image: semantic omits ql-image class, legacy adds it', () => {
     const delta: Delta = {
@@ -651,7 +638,6 @@ describe('qdthtml known differences: images', () => {
     expect(normalizeHtml(renderSemantic(delta))).toBe(
       '<p><img alt="A photo" src="https://example.com/img.png"/></p>',
     );
-    // Legacy ignores alt attribute and adds ql-image class
     expect(normalizeHtml(renderLegacy(delta))).toBe(
       '<p><img class="ql-image" src="https://example.com/img.png"/></p>',
     );
