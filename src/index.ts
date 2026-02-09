@@ -10,8 +10,8 @@ export type {
   Transformer,
 } from './core/ast-types';
 
-export { MARK_PRIORITIES } from './core/ast-types';
 export { BaseRenderer } from './core/base-renderer';
+export { DEFAULT_MARK_PRIORITIES } from './core/default-mark-priorities';
 export { DeltaParser } from './core/parser';
 export { applyTransformers, composeTransformers } from './core/transformer';
 

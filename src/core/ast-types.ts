@@ -89,23 +89,3 @@ export interface RendererConfig<Output> {
   /** How to render inline marks (bold, link, color, etc.) */
   marks: Record<string, MarkHandler<Output>>;
 }
-
-// ─── Mark Priorities ────────────────────────────────────────────────────────
-
-/**
- * Default mark nesting priorities.
- * Higher value = wraps outer (applied first in nesting order).
- *
- * Example with priorities: link(100) > color(40) > bold(10)
- * Result: `<a><span style="color:red"><b>text</b></span></a>`
- */
-export const MARK_PRIORITIES: Record<string, number> = {
-  link: 100,
-  background: 50,
-  color: 40,
-  bold: 10,
-  italic: 10,
-  underline: 10,
-  strike: 10,
-  script: 5,
-};

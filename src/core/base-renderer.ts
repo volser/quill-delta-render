@@ -1,5 +1,5 @@
 import type { BlockHandler, MarkHandler, RendererConfig, TNode } from './ast-types';
-import { MARK_PRIORITIES } from './ast-types';
+import { DEFAULT_MARK_PRIORITIES } from './default-mark-priorities';
 
 /**
  * Abstract base class for all renderers.
@@ -23,7 +23,7 @@ export abstract class BaseRenderer<Output> {
   constructor(config: RendererConfig<Output>) {
     this.blocks = { ...config.blocks };
     this.marks = { ...config.marks };
-    this.markPriorities = { ...MARK_PRIORITIES };
+    this.markPriorities = { ...DEFAULT_MARK_PRIORITIES };
   }
 
   /**
