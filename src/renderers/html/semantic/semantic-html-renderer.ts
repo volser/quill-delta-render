@@ -1,13 +1,13 @@
 import type { TNode } from '../../../core/ast-types';
 import { BaseHtmlRenderer, escapeHtml } from '../base-html-renderer';
 import { buildRendererConfig } from './functions/build-renderer-config';
+import { getGroupType } from './functions/get-group-type';
 import { resolveConfig } from './functions/resolve-config';
 import type { ResolvedConfig } from './types/resolved-config';
 import type {
   AfterRenderCallback,
   BeforeRenderCallback,
   CustomBlotRenderer,
-  RenderGroupType,
   SemanticHtmlConfig,
 } from './types/semantic-html-config';
 
@@ -93,7 +93,7 @@ export class SemanticHtmlRenderer extends BaseHtmlRenderer {
       return this.customBlotRenderer(node, null);
     }
 
-    const groupType = this.getGroupType(node);
+    const groupType = getGroupType(node);
 
     // Before-render hook
     if (this.beforeRenderCb && groupType) {
@@ -128,23 +128,5 @@ export class SemanticHtmlRenderer extends BaseHtmlRenderer {
 
   protected override renderText(text: string): string {
     return this.cfg.encodeHtml ? escapeHtml(text) : text;
-  }
-
-  // ─── Helpers ────────────────────────────────────────────────────────────
-
-  private getGroupType(node: TNode): RenderGroupType | null {
-    switch (node.type) {
-      case 'list':
-        return 'list';
-      case 'table':
-        return 'table';
-      case 'video':
-        return 'video';
-      case 'text':
-        return null;
-      default:
-        if (node.isInline) return null;
-        return 'block';
-    }
   }
 }
