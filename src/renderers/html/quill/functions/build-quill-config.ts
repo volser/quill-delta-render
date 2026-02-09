@@ -114,10 +114,14 @@ export function buildQuillConfig(): RendererConfig<string> {
         const src = escapeHtml(String(node.data));
         const alt = escapeHtml((node.attributes.alt as string) ?? '');
         const width = node.attributes.width as string | undefined;
+        const height = node.attributes.height as string | undefined;
 
         let imgAttrs = `src="${src}"`;
         if (width) {
           imgAttrs += ` width="${escapeHtml(width)}"`;
+        }
+        if (height) {
+          imgAttrs += ` height="${escapeHtml(height)}"`;
         }
         imgAttrs += ` alt="${alt}"`;
 
@@ -126,7 +130,18 @@ export function buildQuillConfig(): RendererConfig<string> {
 
       video: (node) => {
         const src = escapeHtml(String(node.data));
-        return `<iframe class="${PREFIX}-video" src="${src}" frameborder="0" allowfullscreen="true"></iframe>`;
+        const width = node.attributes.width as string | undefined;
+        const height = node.attributes.height as string | undefined;
+
+        let attrs = `class="${PREFIX}-video" src="${src}" frameborder="0" allowfullscreen="true"`;
+        if (width) {
+          attrs += ` width="${escapeHtml(width)}"`;
+        }
+        if (height) {
+          attrs += ` height="${escapeHtml(height)}"`;
+        }
+
+        return `<iframe ${attrs}></iframe>`;
       },
 
       formula: (node) => {

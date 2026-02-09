@@ -75,6 +75,28 @@ describe('QuillHtmlRenderer integration: lists', () => {
     expect(html).toContain('<li><br></li>');
   });
 
+  it('should render list item with align class', () => {
+    const html = renderDelta({
+      ops: [
+        { insert: 'centered' },
+        { insert: '\n', attributes: { list: 'bullet', align: 'center' } },
+      ],
+    });
+    expect(html).toContain('class="ql-align-center"');
+    expect(html).toContain('centered');
+  });
+
+  it('should render list item with indent and align classes', () => {
+    const html = renderDelta({
+      ops: [
+        { insert: 'item' },
+        { insert: '\n', attributes: { list: 'ordered', indent: 1, align: 'right' } },
+      ],
+    });
+    expect(html).toContain('ql-indent-1');
+    expect(html).toContain('ql-align-right');
+  });
+
   it('should switch between ordered and bullet list types', () => {
     const html = renderDelta({
       ops: [

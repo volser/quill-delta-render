@@ -124,10 +124,14 @@ export function buildRendererConfig(cfg: ResolvedConfig): RendererConfig<string>
         const alt = (node.attributes.alt as string) ?? '';
         const linkHref = node.attributes.link as string | undefined;
         const width = node.attributes.width as string | undefined;
+        const height = node.attributes.height as string | undefined;
 
         let imgAttrs = `src="${encodeText(src, cfg)}"`;
         if (width) {
           imgAttrs += ` width="${encodeText(width, cfg)}"`;
+        }
+        if (height) {
+          imgAttrs += ` height="${encodeText(height, cfg)}"`;
         }
         imgAttrs += ` alt="${encodeText(alt, cfg)}"`;
 

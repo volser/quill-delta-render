@@ -75,4 +75,67 @@ describe('QuillHtmlRenderer integration: embeds', () => {
       expect(html).toContain('>x &lt; y &amp; z &gt; w</span>');
     });
   });
+
+  describe('image: height attribute', () => {
+    it('should render image with height', () => {
+      const html = renderDelta({
+        ops: [
+          { insert: { image: 'https://example.com/img.png' }, attributes: { height: '300' } },
+          { insert: '\n' },
+        ],
+      });
+      expect(html).toContain('height="300"');
+    });
+
+    it('should render image with both width and height', () => {
+      const html = renderDelta({
+        ops: [
+          {
+            insert: { image: 'https://example.com/img.png' },
+            attributes: { width: '200', height: '150' },
+          },
+          { insert: '\n' },
+        ],
+      });
+      expect(html).toContain('width="200"');
+      expect(html).toContain('height="150"');
+    });
+  });
+
+  describe('video: dimensions', () => {
+    it('should render video with width', () => {
+      const html = renderDelta({
+        ops: [
+          { insert: { video: 'https://example.com/v.mp4' }, attributes: { width: '640' } },
+          { insert: '\n' },
+        ],
+      });
+      expect(html).toContain('width="640"');
+    });
+
+    it('should render video with height', () => {
+      const html = renderDelta({
+        ops: [
+          { insert: { video: 'https://example.com/v.mp4' }, attributes: { height: '360' } },
+          { insert: '\n' },
+        ],
+      });
+      expect(html).toContain('height="360"');
+    });
+
+    it('should render video with both width and height', () => {
+      const html = renderDelta({
+        ops: [
+          {
+            insert: { video: 'https://example.com/v.mp4' },
+            attributes: { width: '640', height: '360' },
+          },
+          { insert: '\n' },
+        ],
+      });
+      expect(html).toContain('width="640"');
+      expect(html).toContain('height="360"');
+      expect(html).toContain('class="ql-video"');
+    });
+  });
 });
