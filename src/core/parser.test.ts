@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_BLOCK_ATTRIBUTES } from '../common/default-block-attributes';
-import type { Delta, TNode } from './ast-types';
+import type { Delta, ParserConfig, TNode } from './ast-types';
 import { DeltaParser } from './parser';
 
-const QUILL_CONFIG = { blockAttributes: DEFAULT_BLOCK_ATTRIBUTES };
+/** Empty config — no block attributes, tests pure generic parsing. */
+const EMPTY_CONFIG: ParserConfig = { blockAttributes: {} };
 
 describe('DeltaParser', () => {
   describe('basic text parsing', () => {
@@ -12,7 +12,7 @@ describe('DeltaParser', () => {
         ops: [{ insert: 'Hello world\n' }],
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
 
       expect(ast.type).toBe('root');
       expect(ast.children).toHaveLength(1);
@@ -27,7 +27,7 @@ describe('DeltaParser', () => {
         ops: [{ insert: 'First\nSecond\n' }],
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
 
       expect(ast.children).toHaveLength(2);
       expect(ast.children[0]!.type).toBe('paragraph');
@@ -41,7 +41,7 @@ describe('DeltaParser', () => {
         ops: [{ insert: 'No trailing newline' }],
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
 
       expect(ast.children).toHaveLength(1);
       expect(ast.children[0]!.type).toBe('paragraph');
@@ -59,7 +59,7 @@ describe('DeltaParser', () => {
         ],
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
       const paragraph = ast.children[0]!;
 
       expect(paragraph.children).toHaveLength(2);
@@ -79,7 +79,7 @@ describe('DeltaParser', () => {
         ],
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
       const textNode = ast.children[0]!.children[0]!;
 
       expect(textNode.attributes.bold).toBe(true);
@@ -88,13 +88,19 @@ describe('DeltaParser', () => {
     });
   });
 
-  describe('block types', () => {
-    it('should parse a header', () => {
+  describe('block attributes from config', () => {
+    it('should use a configured handler to set block type and attrs', () => {
+      const config: ParserConfig = {
+        blockAttributes: {
+          header: (value) => ({ blockType: 'header', blockAttrs: { header: value } }),
+        },
+      };
+
       const delta: Delta = {
         ops: [{ insert: 'Title' }, { insert: '\n', attributes: { header: 1 } }],
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const ast = new DeltaParser(delta, config).toAST();
 
       expect(ast.children).toHaveLength(1);
       expect(ast.children[0]!.type).toBe('header');
@@ -102,42 +108,68 @@ describe('DeltaParser', () => {
       expect(ast.children[0]!.children[0]!.data).toBe('Title');
     });
 
-    it('should parse a blockquote', () => {
+    it('should fall back to paragraph when attribute has no handler', () => {
       const delta: Delta = {
-        ops: [{ insert: 'A quote' }, { insert: '\n', attributes: { blockquote: true } }],
+        ops: [{ insert: 'text' }, { insert: '\n', attributes: { unknownBlock: true } }],
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
 
-      expect(ast.children[0]!.type).toBe('blockquote');
+      expect(ast.children[0]!.type).toBe('paragraph');
     });
 
-    it('should parse a code block', () => {
-      const delta: Delta = {
-        ops: [{ insert: 'const x = 1;' }, { insert: '\n', attributes: { 'code-block': true } }],
+    it('should merge passthrough attrs without changing block type', () => {
+      const config: ParserConfig = {
+        blockAttributes: {
+          align: (value) => ({ blockType: '', blockAttrs: { align: value } }),
+        },
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const delta: Delta = {
+        ops: [{ insert: 'centered' }, { insert: '\n', attributes: { align: 'center' } }],
+      };
 
-      expect(ast.children[0]!.type).toBe('code-block');
+      const ast = new DeltaParser(delta, config).toAST();
+
+      expect(ast.children[0]!.type).toBe('paragraph');
+      expect(ast.children[0]!.attributes.align).toBe('center');
     });
 
-    it('should parse list items', () => {
-      const delta: Delta = {
-        ops: [
-          { insert: 'Item 1' },
-          { insert: '\n', attributes: { list: 'bullet' } },
-          { insert: 'Item 2' },
-          { insert: '\n', attributes: { list: 'bullet' } },
-        ],
+    it('should exclude block attributes from inline text nodes', () => {
+      const config: ParserConfig = {
+        blockAttributes: {
+          list: (value) => ({ blockType: 'list-item', blockAttrs: { list: value } }),
+        },
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const delta: Delta = {
+        ops: [{ insert: 'Item 1' }, { insert: '\n', attributes: { list: 'bullet' } }],
+      };
 
-      expect(ast.children).toHaveLength(2);
+      const ast = new DeltaParser(delta, config).toAST();
+
       expect(ast.children[0]!.type).toBe('list-item');
       expect(ast.children[0]!.attributes.list).toBe('bullet');
-      expect(ast.children[1]!.type).toBe('list-item');
+    });
+
+    it('should support custom block types', () => {
+      const config: ParserConfig = {
+        blockAttributes: {
+          'my-widget': (value) => ({
+            blockType: 'widget',
+            blockAttrs: { widgetId: value },
+          }),
+        },
+      };
+
+      const delta: Delta = {
+        ops: [{ insert: 'content' }, { insert: '\n', attributes: { 'my-widget': 'abc-123' } }],
+      };
+
+      const ast = new DeltaParser(delta, config).toAST();
+
+      expect(ast.children[0]!.type).toBe('widget');
+      expect(ast.children[0]!.attributes.widgetId).toBe('abc-123');
     });
   });
 
@@ -147,7 +179,7 @@ describe('DeltaParser', () => {
         ops: [{ insert: { image: 'https://example.com/photo.jpg' } }, { insert: '\n' }],
       };
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).toAST();
       const paragraph = ast.children[0]!;
 
       expect(paragraph.children).toHaveLength(1);
@@ -173,7 +205,7 @@ describe('DeltaParser', () => {
         })),
       });
 
-      const ast = new DeltaParser(delta, QUILL_CONFIG).use(uppercaseTransformer).toAST();
+      const ast = new DeltaParser(delta, EMPTY_CONFIG).use(uppercaseTransformer).toAST();
 
       expect(ast.children[0]!.children[0]!.data).toBe('HELLO');
     });
@@ -194,7 +226,7 @@ describe('DeltaParser', () => {
         return root;
       };
 
-      new DeltaParser(delta, QUILL_CONFIG).use(t1).use(t2).toAST();
+      new DeltaParser(delta, EMPTY_CONFIG).use(t1).use(t2).toAST();
 
       expect(calls).toEqual(['t1', 't2']);
     });
