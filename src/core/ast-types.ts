@@ -58,6 +58,28 @@ export interface TNode {
  */
 export type Transformer = (root: TNode) => TNode;
 
+// ─── Parser Types ────────────────────────────────────────────────────────────
+
+/**
+ * Describes how a block-level attribute maps to an AST node type.
+ *
+ * @param value - The attribute value from the delta
+ * @returns The node type and any attributes to set on the block
+ */
+export type BlockAttributeHandler = (value: unknown) => {
+  blockType: string;
+  blockAttrs: Attributes;
+};
+
+/**
+ * Configuration for the DeltaParser.
+ * Maps Quill attribute names to their block-level parsing behavior.
+ */
+export interface ParserConfig {
+  /** Block attribute handlers keyed by attribute name */
+  blockAttributes: Record<string, BlockAttributeHandler>;
+}
+
 // ─── Renderer Types ─────────────────────────────────────────────────────────
 
 /**

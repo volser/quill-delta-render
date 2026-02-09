@@ -1,37 +1,30 @@
-import type { Attributes, Delta, TNode, Transformer } from './ast-types';
-
-/**
- * Known block-level attributes in Quill.
- * When a newline `\n` carries one of these, it defines the block type.
- */
-const BLOCK_ATTRIBUTES = new Set([
-  'header',
-  'blockquote',
-  'code-block',
-  'list',
-  'table',
-  'align',
-  'direction',
-  'indent',
-]);
+import type { Attributes, Delta, ParserConfig, TNode, Transformer } from './ast-types';
 
 /**
  * Parses a Quill Delta into a tree of TNode objects.
  *
+ * The parser is generic — block attribute recognition is driven by
+ * the `ParserConfig` passed to the constructor. This keeps the core
+ * parser free of Quill-specific knowledge.
+ *
  * Usage:
  * ```ts
- * const ast = new DeltaParser(delta)
- *   .use(ListGrouper)
- *   .use(TableGrouper)
+ * import { DEFAULT_BLOCK_ATTRIBUTES } from 'quill-delta-render/common';
+ *
+ * const ast = new DeltaParser(delta, { blockAttributes: DEFAULT_BLOCK_ATTRIBUTES })
+ *   .use(listGrouper)
+ *   .use(tableGrouper)
  *   .toAST();
  * ```
  */
 export class DeltaParser {
   private readonly delta: Delta;
   private readonly transformers: Transformer[] = [];
+  private readonly blockAttributes: ParserConfig['blockAttributes'];
 
-  constructor(delta: Delta) {
+  constructor(delta: Delta, config: ParserConfig) {
     this.delta = delta;
+    this.blockAttributes = config.blockAttributes;
   }
 
   /**
@@ -112,7 +105,8 @@ export class DeltaParser {
   }
 
   /**
-   * Determine the block type and attributes from a newline's attributes.
+   * Determine the block type and attributes from a newline's attributes
+   * by consulting the configured block attribute handlers.
    */
   private extractBlockInfo(attrs: Attributes): {
     blockType: string;
@@ -122,24 +116,14 @@ export class DeltaParser {
     let blockType = 'paragraph';
 
     for (const [key, value] of Object.entries(attrs)) {
-      if (BLOCK_ATTRIBUTES.has(key)) {
-        if (key === 'header') {
-          blockType = 'header';
-          blockAttrs.header = value;
-        } else if (key === 'blockquote') {
-          blockType = 'blockquote';
-        } else if (key === 'code-block') {
-          blockType = 'code-block';
-        } else if (key === 'list') {
-          blockType = 'list-item';
-          blockAttrs.list = value; // 'ordered' | 'bullet'
-        } else if (key === 'table') {
-          blockType = 'table-cell';
-          blockAttrs.table = value; // row identifier, e.g. 'row-1'
-        } else {
-          // align, direction, indent — keep as attributes on the block
-          blockAttrs[key] = value;
+      const handler = this.blockAttributes[key];
+      if (handler) {
+        const result = handler(value);
+        // A non-empty blockType overrides the current type
+        if (result.blockType) {
+          blockType = result.blockType;
         }
+        Object.assign(blockAttrs, result.blockAttrs);
       }
     }
 
@@ -150,7 +134,7 @@ export class DeltaParser {
     // Separate inline formatting attributes (not block-level ones)
     const inlineAttrs: Attributes = {};
     for (const [key, value] of Object.entries(attrs)) {
-      if (!BLOCK_ATTRIBUTES.has(key)) {
+      if (!this.blockAttributes[key]) {
         inlineAttrs[key] = value;
       }
     }

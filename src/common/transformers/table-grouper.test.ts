@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Delta } from '../../core/ast-types';
 import { DeltaParser } from '../../core/parser';
+import { DEFAULT_BLOCK_ATTRIBUTES } from '../default-block-attributes';
 import { tableGrouper } from './table-grouper';
 
+const QUILL_CONFIG = { blockAttributes: DEFAULT_BLOCK_ATTRIBUTES };
+
 function parseWithTableGrouper(delta: Delta) {
-  return new DeltaParser(delta).use(tableGrouper).toAST();
+  return new DeltaParser(delta, QUILL_CONFIG).use(tableGrouper).toAST();
 }
 
 describe('tableGrouper', () => {

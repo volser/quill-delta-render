@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { DEFAULT_BLOCK_ATTRIBUTES } from '../../common/default-block-attributes';
 import type { Delta } from '../../core/ast-types';
 import { DeltaParser } from '../../core/parser';
 import { SemanticHtmlRenderer } from './semantic';
 
+const QUILL_CONFIG = { blockAttributes: DEFAULT_BLOCK_ATTRIBUTES };
+
 function renderDelta(delta: Delta): string {
-  const ast = new DeltaParser(delta).toAST();
+  const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
   const renderer = new SemanticHtmlRenderer();
   return renderer.render(ast);
 }
@@ -153,7 +156,7 @@ describe('SemanticHtmlRenderer', () => {
         ops: [{ insert: 'Title' }, { insert: '\n', attributes: { header: 1 } }],
       };
 
-      const ast = new DeltaParser(delta).toAST();
+      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
       const renderer = new SemanticHtmlRenderer();
 
       renderer.extendBlock('header', (node, children) => {
@@ -171,7 +174,7 @@ describe('SemanticHtmlRenderer', () => {
         ops: [{ insert: 'bold', attributes: { bold: true } }, { insert: '\n' }],
       };
 
-      const ast = new DeltaParser(delta).toAST();
+      const ast = new DeltaParser(delta, QUILL_CONFIG).toAST();
       const renderer = new SemanticHtmlRenderer();
 
       renderer.extendMark('bold', (content) => `<b>${content}</b>`);

@@ -1,12 +1,15 @@
 // Core
 
+export { DEFAULT_BLOCK_ATTRIBUTES } from './common/default-block-attributes';
 export { DEFAULT_MARK_PRIORITIES } from './common/default-mark-priorities';
 export type {
   Attributes,
+  BlockAttributeHandler,
   BlockHandler,
   Delta,
   DeltaOp,
   MarkHandler,
+  ParserConfig,
   RendererConfig,
   TNode,
   Transformer,
