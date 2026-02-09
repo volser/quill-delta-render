@@ -6,6 +6,22 @@ import { renderDelta } from './test-helpers';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Normalize delta ops to match Quill's canonical form:
+ * - `code-block: true` → `'plain'` (Quill's default when no language is set)
+ */
+function normalizeOps(ops: Delta['ops']): Delta['ops'] {
+  return ops.map((op) => {
+    if (op.attributes?.['code-block'] === true) {
+      return {
+        ...op,
+        attributes: { ...op.attributes, 'code-block': 'plain' },
+      };
+    }
+    return op;
+  });
+}
+
 const containers: HTMLDivElement[] = [];
 
 function createQuill(): InstanceType<typeof Quill> {
@@ -16,28 +32,18 @@ function createQuill(): InstanceType<typeof Quill> {
 }
 
 /**
- * Round-trip comparison:
+ * Round-trip test: Delta → our renderer → HTML → Quill → Delta.
  *
- * Path A: Delta → our renderer → HTML → Quill reads it → getContents()
- * Path B: Delta → Quill setContents() directly → getContents()
- *
- * If Quill produces the same delta from both paths, our HTML is
- * semantically identical to what Quill would produce.
+ * Verifies that Quill can reconstruct the original delta from our HTML.
  */
 function assertRoundTrip(delta: Delta): void {
-  // Path A: render with our renderer, feed HTML to Quill
+  // Render with our renderer, then feed the HTML back to Quill
   const html = renderDelta(delta);
-  const quillA = createQuill();
-  quillA.clipboard.dangerouslyPasteHTML(html);
-  const deltaA = quillA.getContents();
+  const quill = createQuill();
+  quill.clipboard.dangerouslyPasteHTML(html);
+  const actualOps = quill.getContents().ops;
 
-  // Path B: load delta directly into Quill
-  const quillB = createQuill();
-  quillB.setContents(delta.ops);
-  const deltaB = quillB.getContents();
-
-  // Both paths should produce identical deltas
-  expect(deltaA.ops).toEqual(deltaB.ops);
+  expect(actualOps).toEqual(normalizeOps(delta.ops));
 }
 
 beforeEach(() => {
@@ -367,8 +373,7 @@ describe('Round-trip: tables', () => {
   it('table surrounded by paragraphs', () => {
     assertRoundTrip({
       ops: [
-        { insert: 'Before\n' },
-        { insert: 'Cell A' },
+        { insert: 'Before\nCell A' },
         { insert: '\n', attributes: { table: 'r1' } },
         { insert: 'Cell B' },
         { insert: '\n', attributes: { table: 'r1' } },
@@ -388,10 +393,9 @@ describe('Round-trip: embeds', () => {
   });
 
   it('video within content', () => {
-    // Standalone video omitted: Quill clipboard.convert doesn't append
-    // trailing \n for block embeds, causing a delta shape mismatch.
-    // This is a clipboard parsing quirk, not a renderer issue
-    // (the HTML compat test proves the output is correct).
+    // Standalone video omitted: Quill clipboard doesn't append
+    // trailing \n for block embeds (clipboard parsing quirk,
+    // not a renderer issue — HTML compat test proves exact match).
     assertRoundTrip({
       ops: [
         { insert: 'Before\n' },
@@ -410,8 +414,7 @@ describe('Round-trip: complex mixed content', () => {
       ops: [
         { insert: 'Normal ' },
         { insert: 'bold', attributes: { bold: true } },
-        { insert: '\n' },
-        { insert: 'My Header' },
+        { insert: '\nMy Header' },
         { insert: '\n', attributes: { header: 2 } },
         { insert: 'Item A' },
         { insert: '\n', attributes: { list: 'bullet' } },
@@ -445,8 +448,7 @@ describe('Round-trip: complex mixed content', () => {
     // renderer issue — the HTML compat test proves exact output match).
     assertRoundTrip({
       ops: [
-        { insert: 'Before code\n' },
-        { insert: 'function foo() {}' },
+        { insert: 'Before code\nfunction foo() {}' },
         { insert: '\n', attributes: { 'code-block': true } },
         { insert: 'return 42;' },
         { insert: '\n', attributes: { 'code-block': true } },
@@ -475,8 +477,7 @@ describe('Round-trip: complex mixed content', () => {
       ops: [
         { insert: 'Title' },
         { insert: '\n', attributes: { header: 1 } },
-        { insert: 'Intro text\n' },
-        { insert: 'Section' },
+        { insert: 'Intro text\nSection' },
         { insert: '\n', attributes: { header: 2 } },
         { insert: 'Point 1' },
         { insert: '\n', attributes: { list: 'bullet' } },
