@@ -100,7 +100,16 @@
     "parser",
     "rich-text"
   ],
+  "author": "Sergiy Voloshyn <sergey.voloshyn@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/volser/quill-delta-render.git"
+  },
+  "homepage": "https://github.com/volser/quill-delta-render#readme",
+  "bugs": {
+    "url": "https://github.com/volser/quill-delta-render/issues"
+  },
   "engines": {
     "node": ">=18"
   },
