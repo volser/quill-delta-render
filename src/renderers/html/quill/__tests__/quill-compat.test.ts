@@ -545,3 +545,90 @@ describe('Quill compat: complex mixed content', () => {
     });
   });
 });
+
+// ─── Tables ─────────────────────────────────────────────────────────────────
+
+describe('Quill compat: tables', () => {
+  it('single cell table', () => {
+    assertHtmlMatch({
+      ops: [{ insert: 'Cell' }, { insert: '\n', attributes: { table: 'row-1' } }],
+    });
+  });
+
+  it('single row with multiple cells', () => {
+    assertHtmlMatch({
+      ops: [
+        { insert: 'A' },
+        { insert: '\n', attributes: { table: 'row-1' } },
+        { insert: 'B' },
+        { insert: '\n', attributes: { table: 'row-1' } },
+        { insert: 'C' },
+        { insert: '\n', attributes: { table: 'row-1' } },
+      ],
+    });
+  });
+
+  it('2x2 table', () => {
+    assertHtmlMatch({
+      ops: [
+        { insert: 'A1' },
+        { insert: '\n', attributes: { table: 'row-1' } },
+        { insert: 'A2' },
+        { insert: '\n', attributes: { table: 'row-1' } },
+        { insert: 'B1' },
+        { insert: '\n', attributes: { table: 'row-2' } },
+        { insert: 'B2' },
+        { insert: '\n', attributes: { table: 'row-2' } },
+      ],
+    });
+  });
+
+  it('3x3 table', () => {
+    assertHtmlMatch({
+      ops: [
+        { insert: '11' },
+        { insert: '\n', attributes: { table: 'r1' } },
+        { insert: '12' },
+        { insert: '\n', attributes: { table: 'r1' } },
+        { insert: '13' },
+        { insert: '\n', attributes: { table: 'r1' } },
+        { insert: '21' },
+        { insert: '\n', attributes: { table: 'r2' } },
+        { insert: '22' },
+        { insert: '\n', attributes: { table: 'r2' } },
+        { insert: '23' },
+        { insert: '\n', attributes: { table: 'r2' } },
+        { insert: '31' },
+        { insert: '\n', attributes: { table: 'r3' } },
+        { insert: '32' },
+        { insert: '\n', attributes: { table: 'r3' } },
+        { insert: '33' },
+        { insert: '\n', attributes: { table: 'r3' } },
+      ],
+    });
+  });
+
+  it('table with formatted cell content', () => {
+    assertHtmlMatch({
+      ops: [
+        { insert: 'Bold', attributes: { bold: true } },
+        { insert: '\n', attributes: { table: 'row-1' } },
+        { insert: 'Normal' },
+        { insert: '\n', attributes: { table: 'row-1' } },
+      ],
+    });
+  });
+
+  it('table surrounded by paragraphs', () => {
+    assertHtmlMatch({
+      ops: [
+        { insert: 'Before\n' },
+        { insert: 'Cell A' },
+        { insert: '\n', attributes: { table: 'r1' } },
+        { insert: 'Cell B' },
+        { insert: '\n', attributes: { table: 'r1' } },
+        { insert: 'After\n' },
+      ],
+    });
+  });
+});
