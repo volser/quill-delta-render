@@ -1,25 +1,36 @@
 /**
- * Performance benchmarks: SemanticHtmlRenderer vs quill-delta-to-html
+ * Performance benchmarks: SemanticHtmlRenderer vs ReactRenderer vs quill-delta-to-html
  *
  * Run with:
  *   npx vitest bench
  *
- * Each benchmark converts the same Quill Delta to HTML using both libraries,
- * measuring throughput (ops/sec) and relative performance.
+ * Each benchmark converts the same Quill Delta to HTML using all three
+ * renderers, measuring throughput (ops/sec) and relative performance.
  */
+
 import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { bench, describe } from 'vitest';
 import type { Delta, DeltaOp } from '../core/ast-types';
 import { parseQuillDelta } from '../parse-quill-delta';
 import { SemanticHtmlRenderer } from '../renderers/html/semantic/semantic-html-renderer';
+import { ReactRenderer } from '../renderers/react/react-renderer';
 
 // ─── Renderer Instances (reused across iterations) ──────────────────────────
 
 const semanticRenderer = new SemanticHtmlRenderer();
+const reactRenderer = new ReactRenderer();
 
 function renderSemantic(delta: Delta): string {
   const ast = parseQuillDelta(delta);
   return semanticRenderer.render(ast);
+}
+
+function renderReact(delta: Delta): string {
+  const ast = parseQuillDelta(delta);
+  const element = reactRenderer.render(ast);
+  return renderToStaticMarkup(createElement('div', null, element));
 }
 
 function renderLegacy(delta: Delta): string {
@@ -225,6 +236,9 @@ describe('Plain text paragraphs', () => {
   bench('SemanticHtmlRenderer — 5 paragraphs', () => {
     renderSemantic(SMALL_PLAIN);
   });
+  bench('ReactRenderer — 5 paragraphs', () => {
+    renderReact(SMALL_PLAIN);
+  });
   bench('quill-delta-to-html — 5 paragraphs', () => {
     renderLegacy(SMALL_PLAIN);
   });
@@ -232,12 +246,18 @@ describe('Plain text paragraphs', () => {
   bench('SemanticHtmlRenderer — 50 paragraphs', () => {
     renderSemantic(MEDIUM_PLAIN);
   });
+  bench('ReactRenderer — 50 paragraphs', () => {
+    renderReact(MEDIUM_PLAIN);
+  });
   bench('quill-delta-to-html — 50 paragraphs', () => {
     renderLegacy(MEDIUM_PLAIN);
   });
 
   bench('SemanticHtmlRenderer — 500 paragraphs', () => {
     renderSemantic(LARGE_PLAIN);
+  });
+  bench('ReactRenderer — 500 paragraphs', () => {
+    renderReact(LARGE_PLAIN);
   });
   bench('quill-delta-to-html — 500 paragraphs', () => {
     renderLegacy(LARGE_PLAIN);
@@ -248,6 +268,9 @@ describe('Formatted text (bold, italic, links, colors)', () => {
   bench('SemanticHtmlRenderer — 5 blocks', () => {
     renderSemantic(SMALL_FORMATTED);
   });
+  bench('ReactRenderer — 5 blocks', () => {
+    renderReact(SMALL_FORMATTED);
+  });
   bench('quill-delta-to-html — 5 blocks', () => {
     renderLegacy(SMALL_FORMATTED);
   });
@@ -255,12 +278,18 @@ describe('Formatted text (bold, italic, links, colors)', () => {
   bench('SemanticHtmlRenderer — 50 blocks', () => {
     renderSemantic(MEDIUM_FORMATTED);
   });
+  bench('ReactRenderer — 50 blocks', () => {
+    renderReact(MEDIUM_FORMATTED);
+  });
   bench('quill-delta-to-html — 50 blocks', () => {
     renderLegacy(MEDIUM_FORMATTED);
   });
 
   bench('SemanticHtmlRenderer — 200 blocks', () => {
     renderSemantic(LARGE_FORMATTED);
+  });
+  bench('ReactRenderer — 200 blocks', () => {
+    renderReact(LARGE_FORMATTED);
   });
   bench('quill-delta-to-html — 200 blocks', () => {
     renderLegacy(LARGE_FORMATTED);
@@ -271,6 +300,9 @@ describe('Nested lists (5 levels × 4 items)', () => {
   bench('SemanticHtmlRenderer', () => {
     renderSemantic(NESTED_LIST);
   });
+  bench('ReactRenderer', () => {
+    renderReact(NESTED_LIST);
+  });
   bench('quill-delta-to-html', () => {
     renderLegacy(NESTED_LIST);
   });
@@ -279,6 +311,9 @@ describe('Nested lists (5 levels × 4 items)', () => {
 describe('Headers with body text', () => {
   bench('SemanticHtmlRenderer', () => {
     renderSemantic(HEADERS_DOC);
+  });
+  bench('ReactRenderer', () => {
+    renderReact(HEADERS_DOC);
   });
   bench('quill-delta-to-html', () => {
     renderLegacy(HEADERS_DOC);
@@ -289,6 +324,9 @@ describe('Code blocks (5 blocks × 10 lines)', () => {
   bench('SemanticHtmlRenderer', () => {
     renderSemantic(CODE_BLOCKS);
   });
+  bench('ReactRenderer', () => {
+    renderReact(CODE_BLOCKS);
+  });
   bench('quill-delta-to-html', () => {
     renderLegacy(CODE_BLOCKS);
   });
@@ -297,6 +335,9 @@ describe('Code blocks (5 blocks × 10 lines)', () => {
 describe('Embeds (20 images)', () => {
   bench('SemanticHtmlRenderer', () => {
     renderSemantic(EMBEDS_DOC);
+  });
+  bench('ReactRenderer', () => {
+    renderReact(EMBEDS_DOC);
   });
   bench('quill-delta-to-html', () => {
     renderLegacy(EMBEDS_DOC);
@@ -307,6 +348,9 @@ describe('Tables (10 rows × 4 cols)', () => {
   bench('SemanticHtmlRenderer', () => {
     renderSemantic(TABLE_DOC);
   });
+  bench('ReactRenderer', () => {
+    renderReact(TABLE_DOC);
+  });
   bench('quill-delta-to-html', () => {
     renderLegacy(TABLE_DOC);
   });
@@ -315,6 +359,9 @@ describe('Tables (10 rows × 4 cols)', () => {
 describe('Realistic document (mixed content)', () => {
   bench('SemanticHtmlRenderer', () => {
     renderSemantic(REALISTIC_DOC);
+  });
+  bench('ReactRenderer', () => {
+    renderReact(REALISTIC_DOC);
   });
   bench('quill-delta-to-html', () => {
     renderLegacy(REALISTIC_DOC);
