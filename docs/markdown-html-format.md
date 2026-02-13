@@ -17,13 +17,17 @@ const md = new HtmlMarkdownRenderer().render(ast);
 - All **standard Markdown** (blocks and inline): paragraphs, headers, lists, blockquotes, code blocks, **bold**, *italic*, ~~strike~~, `code`, [links](url).
 - **Non-standard inline formats** are emitted as HTML so they are preserved:
 
-| Format           | Output            | Example input | Example output              |
-| --------------- | ----------------- | ------------- | --------------------------- |
-| Underline       | `<u>...</u>`      | underlined    | `<u>underlined</u>`         |
-| Subscript       | `<sub>...</sub>`  | H₂O           | `H<sub>2</sub>O`            |
-| Superscript     | `<sup>...</sup>`  | E=mc²         | `E=mc<sup>2</sup>`          |
+| Format           | Output                              | Example input   | Example output                                              |
+| --------------- | ----------------------------------- | --------------- | ----------------------------------------------------------- |
+| Underline       | `<u>...</u>`                        | underlined      | `<u>underlined</u>`                                         |
+| Subscript       | `<sub>...</sub>`                    | H₂O             | `H<sub>2</sub>O`                                            |
+| Superscript     | `<sup>...</sup>`                    | E=mc²           | `E=mc<sup>2</sup>`                                          |
+| Color           | `<span color="...">...</span>`      | red text        | `<span color="#e60000">red text</span>`                     |
+| Background      | `<span background-color="...">...</span>` | highlighted | `<span background-color="#ffebcc">highlighted</span>`        |
+| Font            | `<span font="...">...</span>`       | mono            | `<span font="monospace">mono</span>`                        |
+| Size            | `<span size="...">...</span>`       | large           | `<span size="large">large</span>`                            |
 
-Formats such as color, background, font, and size have no HTML equivalent in this renderer and are **stripped** (same as in standard Markdown).
+When multiple of these apply (color, background, font, size), they are merged into **one** `<span>` tag (e.g. `<span color="red" font="mono">text</span>`), following the same attributor pattern as the HTML renderers.
 
 ## When to use
 
