@@ -25,4 +25,44 @@ describe('HtmlMarkdownRenderer – inline formatting', () => {
     );
     expect(md).toBe('E=mc<sup>2</sup>');
   });
+
+  it('should render custom embed via embedHandler (HTML)', () => {
+    const md = renderDeltaHtml(
+      d({ insert: { widget: { type: 'chart', id: 'c1' } } }, { insert: '\n' }),
+      {
+        embedHandler: (node) => {
+          if (node.type === 'widget' && node.data && typeof node.data === 'object') {
+            const data = node.data as Record<string, unknown>;
+            return `<div class="embed" data-type="${data.type}" data-id="${data.id}"></div>`;
+          }
+          return undefined;
+        },
+      },
+    );
+    expect(md).toBe('<div class="embed" data-type="chart" data-id="c1"></div>');
+  });
+
+  it('should render embed via embedAttributesHandler only (HTML)', () => {
+    const md = renderDeltaHtml(
+      d({ insert: { widget: { type: 'chart', id: 'c1' } } }, { insert: '\n' }),
+      {
+        embedAttributesHandler: (node) => {
+          if (node.type === 'widget' && node.data && typeof node.data === 'object') {
+            const data = node.data as Record<string, unknown>;
+            return { type: String(data.type), id: String(data.id) };
+          }
+          return undefined;
+        },
+      },
+    );
+    expect(md).toBe('<embed data-embed-type="widget" data-type="chart" data-id="c1" />');
+  });
+
+  it('should prefer embedHandler over embedAttributesHandler (HTML)', () => {
+    const md = renderDeltaHtml(d({ insert: { widget: { id: 'c1' } } }, { insert: '\n' }), {
+      embedHandler: () => '<custom/>',
+      embedAttributesHandler: () => ({ id: 'c1' }),
+    });
+    expect(md).toBe('<custom/>');
+  });
 });

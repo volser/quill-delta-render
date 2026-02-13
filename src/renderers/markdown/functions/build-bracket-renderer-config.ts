@@ -1,3 +1,5 @@
+import type { TNode } from '../../../core/ast-types';
+import { isEmbedNode } from '../../../core/ast-types';
 import type { SimpleRendererConfig } from '../../../core/simple-renderer';
 import type { ResolvedMarkdownConfig } from '../types/markdown-config';
 import { buildRendererConfig } from './build-renderer-config';
@@ -13,15 +15,34 @@ function styleTag(attrs: Record<string, string | boolean>): string {
 /**
  * Build config for bracket markdown ([STYLE] and other [TAG]...[/TAG] formats).
  * Same as standard but underline, script, color, background, font and size are
- * rendered as [STYLE attr=value ...]content[/STYLE]. Additional tag types can
- * be added by extending this config.
+ * rendered as [STYLE attr=value ...]content[/STYLE]. Supports embedAttributesHandler
+ * for attribute-only embed output as a self-closing tag [EMBED type=... attr=val ... /].
+ * The "type" attribute is always the embed node type; handler provides the rest.
  */
 export function buildBracketRendererConfig(
-  _cfg: ResolvedMarkdownConfig,
+  cfg: ResolvedMarkdownConfig,
 ): SimpleRendererConfig<string> {
-  const base = buildRendererConfig(_cfg);
+  const base = buildRendererConfig(cfg);
   return {
     ...base,
+    onUnknownNode: (node: TNode) => {
+      if (isEmbedNode(node)) {
+        const custom = cfg.embedHandler?.(node);
+        if (custom !== undefined) return custom;
+        const attrs = cfg.embedAttributesHandler?.(node);
+        if (attrs && typeof attrs === 'object') {
+          const { type: _reserved, ...rest } = attrs;
+          const merged = { type: node.type, ...rest };
+          const attrStr = Object.entries(merged)
+            .filter(([, v]) => v !== undefined && v !== '')
+            .map(([k, v]) => `${k}=${String(v)}`)
+            .join(' ');
+          return `[EMBED ${attrStr} /]`;
+        }
+        return '';
+      }
+      return base.onUnknownNode?.(node);
+    },
     marks: {
       ...base.marks,
       underline: (content) => {

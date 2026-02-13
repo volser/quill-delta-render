@@ -21,8 +21,24 @@ describe('MarkdownRenderer – embeds', () => {
     expect(md).toBe('Before\n* * *\nAfter');
   });
 
-  it('should return empty for unknown embed types', () => {
+  it('should return empty for unknown embed types when no embedHandler', () => {
     const md = renderDelta(d({ insert: { unknown_embed: { data: 'test' } } }, { insert: '\n' }));
     expect(md).toBe('');
+  });
+
+  it('should render custom embed via embedHandler', () => {
+    const md = renderDelta(
+      d({ insert: { myEmbed: { id: '42', title: 'Custom' } } }, { insert: '\n' }),
+      {
+        embedHandler: (node) => {
+          if (node.type === 'myEmbed' && node.data && typeof node.data === 'object') {
+            const d = node.data as Record<string, unknown>;
+            return `[${String(d.title)}](#embed/${d.id})`;
+          }
+          return undefined;
+        },
+      },
+    );
+    expect(md).toBe('[Custom](#embed/42)');
   });
 });

@@ -51,6 +51,45 @@ Output (conceptual):
 - **Use HtmlMarkdownRenderer** when the consumer is a standard Markdown engine that allows inline HTML.
 - **Use MarkdownRenderer** when you need strict standard Markdown only.
 
+## Custom embeds
+
+For delta inserts like `{ insert: { myEmbed: { ... } } }`, you can either fully control the output or only supply attributes.
+
+### Full override: embedHandler
+
+Provide an **embedHandler** in config. It receives the embed node (`node.type` is the embed key, `node.data` is the payload) and returns the bracket string to emit, or `undefined` to fall back to attribute-based rendering or empty.
+
+```ts
+new BracketMarkdownRenderer({
+  embedHandler: (node) => {
+    if (node.type === 'widget' && node.data && typeof node.data === 'object') {
+      const d = node.data as Record<string, unknown>;
+      return `[WIDGET id=${d.id}]${String(d.title)}[/WIDGET]`;
+    }
+    return undefined;
+  },
+});
+```
+
+### Attributes-only: embedAttributesHandler
+
+For a simpler path, provide **embedAttributesHandler**. The renderer emits a self-closing tag: **`[EMBED type=... attr=val ... /]`**. The **`type`** attribute is reserved for the embed node type (e.g. `widget`, `myEmbed`); your handler returns the rest of the attributes (use e.g. `kind` or `id`).
+
+```ts
+new BracketMarkdownRenderer({
+  embedAttributesHandler: (node) => {
+    if (node.type === 'widget' && node.data && typeof node.data === 'object') {
+      const d = node.data as Record<string, unknown>;
+      return { kind: String(d.type), id: String(d.id) };
+    }
+    return undefined;
+  },
+});
+// Renders: [EMBED type=widget kind=chart id=c1 /]
+```
+
+If both **embedHandler** and **embedAttributesHandler** are set, **embedHandler** is tried first; its result is used when it returns a string.
+
 ## Configuration
 
-`BracketMarkdownRenderer` accepts the same optional config as `MarkdownRenderer` (e.g. `bulletChar`, `fenceChar`, `hrString`). See the main [README](../README.md#markdownrenderer) for options.
+`BracketMarkdownRenderer` accepts the same optional config as `MarkdownRenderer` (e.g. `bulletChar`, `fenceChar`, `hrString`, `embedHandler`, `embedAttributesHandler`). See the main [README](../README.md#markdownrenderer) for options.

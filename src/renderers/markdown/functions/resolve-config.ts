@@ -11,5 +11,7 @@ export function resolveConfig(config?: MarkdownConfig): ResolvedMarkdownConfig {
     indentString: config?.indentString ?? '    ',
     hrString: config?.hrString ?? '* * *',
     fenceChar: config?.fenceChar ?? '```',
+    embedHandler: config?.embedHandler,
+    embedAttributesHandler: config?.embedAttributesHandler,
   };
 }

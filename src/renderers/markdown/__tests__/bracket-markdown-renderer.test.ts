@@ -96,4 +96,51 @@ describe('BracketMarkdownRenderer – inline formatting', () => {
     expect(md).toContain('styled');
     expect(md).toContain('[/STYLE]');
   });
+
+  it('should render custom embed via embedHandler (bracket)', () => {
+    const md = renderDeltaBracket(
+      d({ insert: { widget: { type: 'chart', id: 'c1' } } }, { insert: '\n' }),
+      {
+        embedHandler: (node) => {
+          if (node.type === 'widget' && node.data && typeof node.data === 'object') {
+            const data = node.data as Record<string, unknown>;
+            return `[WIDGET type=${data.type} id=${data.id}][/WIDGET]`;
+          }
+          return undefined;
+        },
+      },
+    );
+    expect(md).toBe('[WIDGET type=chart id=c1][/WIDGET]');
+  });
+
+  it('should render embed via embedAttributesHandler only (bracket)', () => {
+    const md = renderDeltaBracket(
+      d({ insert: { widget: { type: 'chart', id: 'c1' } } }, { insert: '\n' }),
+      {
+        embedAttributesHandler: (node) => {
+          if (node.type === 'widget' && node.data && typeof node.data === 'object') {
+            const data = node.data as Record<string, unknown>;
+            return { kind: String(data.type), id: String(data.id) };
+          }
+          return undefined;
+        },
+      },
+    );
+    expect(md).toBe('[EMBED type=widget kind=chart id=c1 /]');
+  });
+
+  it('should prefer embedHandler over embedAttributesHandler (bracket)', () => {
+    const md = renderDeltaBracket(d({ insert: { widget: { id: 'c1' } } }, { insert: '\n' }), {
+      embedHandler: () => '[CUSTOM][/CUSTOM]',
+      embedAttributesHandler: () => ({ id: 'c1' }),
+    });
+    expect(md).toBe('[CUSTOM][/CUSTOM]');
+  });
+
+  it('should render self-closed [EMBED type=... /] when embedAttributesHandler returns empty object', () => {
+    const md = renderDeltaBracket(d({ insert: { myEmbed: {} } }, { insert: '\n' }), {
+      embedAttributesHandler: () => ({}),
+    });
+    expect(md).toBe('[EMBED type=myEmbed /]');
+  });
 });

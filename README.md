@@ -165,8 +165,12 @@ new MarkdownRenderer({
   singleLineBreakForPTag: false, // Single \n between paragraphs (default: false)
   bulletChar: '*', // Unordered list character (default: '*')
   fenceChar: '```', // Fenced code block delimiter (default: '```')
+  embedHandler: (node) => { /* return string for custom embeds (e.g. { insert: { myEmbed: {...} } }) or undefined */ },
+  embedAttributesHandler: (node) => { /* return { key: value } for attribute-only embeds; used by HtmlMarkdownRenderer and BracketMarkdownRenderer */ },
 });
 ````
+
+`HtmlMarkdownRenderer` and `BracketMarkdownRenderer` accept the same config. For custom embeds they support both **embedHandler** (full override) and **embedAttributesHandler** (renderer builds a self-closing tag). See [HTML Markdown format](docs/markdown-html-format.md#custom-embeds) and [Bracket Markdown format](docs/markdown-bracket-format.md#custom-embeds) for details.
 
 ### parseQuillDelta
 

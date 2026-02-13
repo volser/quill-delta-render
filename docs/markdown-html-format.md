@@ -30,6 +30,45 @@ Formats such as color, background, font, and size have no HTML equivalent in thi
 - **Use HtmlMarkdownRenderer** when the Markdown will be rendered by a viewer that supports inline HTML (most modern Markdown engines do).
 - **Use MarkdownRenderer** when you need strict standard Markdown only (e.g. for a spec-compliant export or a processor that strips HTML).
 
+## Custom embeds
+
+For delta inserts like `{ insert: { myEmbed: { ... } } }`, you can either fully control the output or only supply attributes.
+
+### Full override: embedHandler
+
+Provide an **embedHandler** in config. It receives the embed node (`node.type` is the embed key, `node.data` is the payload) and returns the HTML string to emit, or `undefined` to fall back to attribute-based rendering or empty.
+
+```ts
+new HtmlMarkdownRenderer({
+  embedHandler: (node) => {
+    if (node.type === 'widget' && node.data && typeof node.data === 'object') {
+      const d = node.data as Record<string, unknown>;
+      return `<span data-widget-id="${d.id}">${String(d.title)}</span>`;
+    }
+    return undefined;
+  },
+});
+```
+
+### Attributes-only: embedAttributesHandler
+
+For a simpler path, provide **embedAttributesHandler**. The renderer emits a self-closing **`<embed data-embed-type="..." data-*="..." />`** tag. The `data-embed-type` attribute is the embed node type (e.g. `widget`, `myEmbed`); your handler returns the rest as key/value pairs (each becomes `data-<key>="<value>"`).
+
+```ts
+new HtmlMarkdownRenderer({
+  embedAttributesHandler: (node) => {
+    if (node.type === 'widget' && node.data && typeof node.data === 'object') {
+      const d = node.data as Record<string, unknown>;
+      return { type: String(d.type), id: String(d.id) };
+    }
+    return undefined;
+  },
+});
+// Renders: <embed data-embed-type="widget" data-type="chart" data-id="c1" />
+```
+
+If both **embedHandler** and **embedAttributesHandler** are set, **embedHandler** is tried first; its result is used when it returns a string.
+
 ## Configuration
 
-`HtmlMarkdownRenderer` accepts the same optional config as `MarkdownRenderer` (e.g. `bulletChar`, `fenceChar`, `hrString`). See the main [README](../README.md#markdownrenderer) for options.
+`HtmlMarkdownRenderer` accepts the same optional config as `MarkdownRenderer` (e.g. `bulletChar`, `fenceChar`, `hrString`, `embedHandler`, `embedAttributesHandler`). See the main [README](../README.md#markdownrenderer) for options.

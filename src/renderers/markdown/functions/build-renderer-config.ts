@@ -1,5 +1,5 @@
 import { DEFAULT_MARK_PRIORITIES } from '../../../common/default-mark-priorities';
-import type { NodeOverrideContext, TNode } from '../../../core/ast-types';
+import { isEmbedNode, type NodeOverrideContext, type TNode } from '../../../core/ast-types';
 import type { SimpleRendererConfig } from '../../../core/simple-renderer';
 import { getHeaderLevel } from '../../common/node-attributes';
 import { resolveCodeBlockLines } from '../../common/resolve-code-block-lines';
@@ -115,6 +115,13 @@ function getListPrefix(
 export function buildRendererConfig(cfg: ResolvedMarkdownConfig): SimpleRendererConfig<string> {
   return {
     markPriorities: DEFAULT_MARK_PRIORITIES,
+
+    onUnknownNode: (node: TNode) => {
+      if (isEmbedNode(node) && cfg.embedHandler) {
+        return cfg.embedHandler(node) ?? '';
+      }
+      return undefined;
+    },
 
     nodeOverrides: {
       'line-break': () => '\n',
