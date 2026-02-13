@@ -27,7 +27,7 @@ const md = new HtmlMarkdownRenderer().render(ast);
 | Font            | `<span font="...">...</span>`       | mono            | `<span font="monospace">mono</span>`                        |
 | Size            | `<span size="...">...</span>`       | large           | `<span size="large">large</span>`                            |
 
-When multiple of these apply (color, background, font, size), they are merged into **one** `<span>` tag (e.g. `<span color="red" font="mono">text</span>`), following the same attributor pattern as the HTML renderers.
+When multiple of these apply (color, background, font, size), they are merged into **one** `<span>` tag (e.g. `<span color="red" font="mono">text</span>`). When **bold**, *italic*, or other standard Markdown marks apply together with color/font/etc., the Markdown syntax is kept inside the span: `<span color="red">**bold text**</span>`.
 
 ## When to use
 

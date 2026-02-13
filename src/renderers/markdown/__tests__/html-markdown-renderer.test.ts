@@ -84,6 +84,13 @@ describe('HtmlMarkdownRenderer – inline formatting', () => {
     expect(md).toContain('>all</span>');
   });
 
+  it('should wrap Markdown syntax in span when color and bold apply', () => {
+    const md = renderDeltaHtml(
+      d({ insert: 'bold red', attributes: { bold: true, color: 'red' } }, { insert: '\n' }),
+    );
+    expect(md).toBe('<span color="red">**bold red**</span>');
+  });
+
   it('should render custom embed via embedHandler (HTML)', () => {
     const md = renderDeltaHtml(
       d({ insert: { widget: { type: 'chart', id: 'c1' } } }, { insert: '\n' }),

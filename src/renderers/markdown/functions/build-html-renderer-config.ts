@@ -6,7 +6,7 @@ import type { MarkdownHtmlAttrs } from '../types/markdown-html-attrs';
 import { buildRendererConfig } from './build-renderer-config';
 import { serializeMarkdownHtmlAttrs } from './markdown-html-attrs';
 
-/** Wrap content in a tag with optional collected attributor attrs (one span/tag). */
+/** Wrap content in HTML tag with optional attributor attrs (for underline/script). */
 function tagWithAttrs(tag: string, content: string, attrs: MarkdownHtmlAttrs | undefined): string {
   const attrStr = attrs ? serializeMarkdownHtmlAttrs(attrs.attrs) : '';
   return attrStr ? `<${tag} ${attrStr}>${content}</${tag}>` : `<${tag}>${content}</${tag}>`;
@@ -22,11 +22,6 @@ export function buildHtmlRendererConfig(
 ): RendererConfig<string, MarkdownHtmlAttrs> {
   const base = buildRendererConfig(cfg);
   const {
-    bold,
-    italic,
-    strike,
-    code,
-    link,
     underline,
     script,
     color: _color,
@@ -68,17 +63,6 @@ export function buildHtmlRendererConfig(
     },
     marks: {
       ...restMarks,
-      bold: (content, _v, _n, a) => tagWithAttrs('strong', content, a),
-      italic: (content, _v, _n, a) => tagWithAttrs('em', content, a),
-      strike: (content, _v, _n, a) => tagWithAttrs('s', content, a),
-      code: (content, _v, _n, a) => tagWithAttrs('code', content, a),
-      link: (content, value, _n, a) => {
-        const href = String(value);
-        const attrStr = a ? serializeMarkdownHtmlAttrs(a.attrs) : '';
-        return attrStr
-          ? `<a href="${escapeHtml(href)}" ${attrStr}>${content}</a>`
-          : `<a href="${escapeHtml(href)}">${content}</a>`;
-      },
       underline: (content, _v, _n, a) => tagWithAttrs('u', content, a),
       script: (content, value, _n, a) => {
         const tag = value === 'super' ? 'sup' : 'sub';
