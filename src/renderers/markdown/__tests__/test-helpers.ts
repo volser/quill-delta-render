@@ -4,7 +4,7 @@ import { listGrouper } from '../../../common/transformers/list-grouper';
 import { tableGrouper } from '../../../common/transformers/table-grouper';
 import type { Delta } from '../../../core/ast-types';
 import { DeltaParser } from '../../../core/parser';
-import { ExtendedMarkdownRenderer } from '../extended-markdown-renderer';
+import { HtmlMarkdownRenderer } from '../html-markdown-renderer';
 import { MarkdownRenderer } from '../markdown-renderer';
 import type { MarkdownConfig } from '../types/markdown-config';
 
@@ -34,12 +34,12 @@ export function renderDelta(delta: Delta, config?: MarkdownConfig): string {
 /** Same as {@link renderDelta} but with a pre-configured renderer instance. */
 export function renderDeltaWith(
   delta: Delta,
-  renderer: MarkdownRenderer | ExtendedMarkdownRenderer,
+  renderer: MarkdownRenderer | HtmlMarkdownRenderer,
 ): string {
   return renderer.render(parseDelta(delta));
 }
 
-/** Delta → parse → render with {@link ExtendedMarkdownRenderer} (underline/script as HTML). */
-export function renderDeltaExtended(delta: Delta, config?: MarkdownConfig): string {
-  return new ExtendedMarkdownRenderer(config).render(parseDelta(delta));
+/** Delta → parse → render with {@link HtmlMarkdownRenderer} (underline/script as HTML). */
+export function renderDeltaHtml(delta: Delta, config?: MarkdownConfig): string {
+  return new HtmlMarkdownRenderer(config).render(parseDelta(delta));
 }

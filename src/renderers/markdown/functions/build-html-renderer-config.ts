@@ -3,12 +3,10 @@ import type { ResolvedMarkdownConfig } from '../types/markdown-config';
 import { buildRendererConfig } from './build-renderer-config';
 
 /**
- * Build config for extended Markdown: same as standard but underline and script
- * are rendered as HTML (`<u>`, `<sub>`, `<sup>`).
+ * Build config for Markdown with HTML fallbacks: same as standard but underline
+ * and script are rendered as HTML (`<u>`, `<sub>`, `<sup>`).
  */
-export function buildExtendedRendererConfig(
-  cfg: ResolvedMarkdownConfig,
-): SimpleRendererConfig<string> {
+export function buildHtmlRendererConfig(cfg: ResolvedMarkdownConfig): SimpleRendererConfig<string> {
   const base = buildRendererConfig(cfg);
   return {
     ...base,

@@ -12,7 +12,7 @@ import type { MarkdownConfig } from './types/markdown-config';
  *
  * Formats with no standard Markdown equivalent (underline, script, color,
  * background, font, size) are stripped. For HTML fallbacks (e.g. `<u>`,
- * `<sub>`, `<sup>`) use {@link ExtendedMarkdownRenderer}.
+ * `<sub>`, `<sup>`) use {@link HtmlMarkdownRenderer}.
  *
  * The renderer is designed for extensibility — use `withBlock()` and
  * `withMark()` to add handlers for custom embed types (e.g. mentions,
