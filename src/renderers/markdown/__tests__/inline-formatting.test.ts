@@ -22,6 +22,17 @@ describe('MarkdownRenderer – inline formatting', () => {
     expect(md).toBe('Hello ~~world~~');
   });
 
+  it('should render underline as HTML <u>', () => {
+    const md = renderDelta(
+      d(
+        { insert: 'Hello ' },
+        { insert: 'underlined', attributes: { underline: true } },
+        { insert: '\n' },
+      ),
+    );
+    expect(md).toBe('Hello <u>underlined</u>');
+  });
+
   it('should render inline code', () => {
     const md = renderDelta(
       d(
@@ -41,7 +52,7 @@ describe('MarkdownRenderer – inline formatting', () => {
     expect(md).toBe('**_text_**');
   });
 
-  it('should ignore color, background, underline, font, size', () => {
+  it('should ignore color, background, font, size', () => {
     const md = renderDelta(
       d(
         {
@@ -49,7 +60,6 @@ describe('MarkdownRenderer – inline formatting', () => {
           attributes: {
             color: 'red',
             background: '#ff0',
-            underline: true,
             font: 'serif',
             size: '18px',
           },
