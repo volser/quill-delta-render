@@ -107,7 +107,7 @@ function getListPrefix(
  *
  * Defines all block handlers (paragraph, header, blockquote, code-block,
  * image, video, divider, formula, table pass-throughs) and mark handlers
- * (bold, italic, strike, code, link, underline as `<u>` + passthrough for unsupported marks).
+ * (bold, italic, strike, code, link, underline as `<u>`, script as `<sub>`/`<sup>` + passthrough for unsupported marks).
  *
  * Node overrides handle `root`, `list`, and `code-block-container` — types
  * that need custom traversal logic not expressible as simple block handlers.
@@ -184,9 +184,10 @@ export function buildRendererConfig(cfg: ResolvedMarkdownConfig): SimpleRenderer
 
       // No standard MD syntax; render as HTML so it is preserved
       underline: (content) => `<u>${content}</u>`,
+      script: (content, value) =>
+        value === 'super' ? `<sup>${content}</sup>` : `<sub>${content}</sub>`,
 
       // No native Markdown equivalents — pass content through
-      script: identity,
       color: identity,
       background: identity,
       font: identity,

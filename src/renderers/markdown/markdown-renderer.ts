@@ -8,10 +8,10 @@ import type { MarkdownConfig } from './types/markdown-config';
  *
  * Supports all standard Quill block types (paragraphs, headers, blockquotes,
  * code blocks, lists, images, video, horizontal rules) and inline marks
- * (bold, italic, strike, code, link, underline as HTML `<u>`).
+ * (bold, italic, strike, code, link, underline as HTML `<u>`, script as `<sub>`/`<sup>`).
  *
  * Markdown has no concept of inline styling, so color, background, font,
- * and size are silently ignored; underline is rendered as HTML `<u>`.
+ * and size are silently ignored; underline and script are rendered as HTML `<u>`, `<sub>`, `<sup>`.
  *
  * The renderer is designed for extensibility — use `withBlock()` and
  * `withMark()` to add handlers for custom embed types (e.g. mentions,
