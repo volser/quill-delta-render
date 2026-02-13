@@ -32,6 +32,7 @@ export function buildHtmlRendererConfig(
   } = base.marks;
 
   return {
+    markPriorities: base.markPriorities,
     blocks: base.blocks,
     nodeOverrides: base.nodeOverrides,
     onUnknownNode: (node: TNode) => {

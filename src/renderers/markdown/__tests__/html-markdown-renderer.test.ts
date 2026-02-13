@@ -91,6 +91,25 @@ describe('HtmlMarkdownRenderer – inline formatting', () => {
     expect(md).toBe('<span color="red">**bold red**</span>');
   });
 
+  it('should render mixed format: underline, color, font, bold and italic in one span', () => {
+    const md = renderDeltaHtml(
+      d(
+        {
+          insert: 'mixed',
+          attributes: {
+            underline: true,
+            color: 'red',
+            font: 'monospace',
+            bold: true,
+            italic: true,
+          },
+        },
+        { insert: '\n' },
+      ),
+    );
+    expect(md).toBe('<span color="red" font="monospace">**_<u>mixed</u>_**</span>');
+  });
+
   it('should render custom embed via embedHandler (HTML)', () => {
     const md = renderDeltaHtml(
       d({ insert: { widget: { type: 'chart', id: 'c1' } } }, { insert: '\n' }),
