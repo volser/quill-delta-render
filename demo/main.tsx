@@ -53,19 +53,19 @@ app.innerHTML = `
 
     <section class="grid">
       <article class="panel">
-        <h2>Quill HTML</h2>
-        <pre id="quill-html-code"></pre>
+        <h2>Quill HTML</h2>        
         <div class="preview-shell ql-container ql-snow">
           <div id="quill-html-preview" class="preview ql-editor"></div>
         </div>
+        <pre id="quill-html-code"></pre>
       </article>
 
       <article class="panel">
-        <h2>Semantic HTML</h2>
-        <pre id="semantic-html-code"></pre>
+        <h2>Semantic HTML</h2>        
         <div class="preview-shell ql-container ql-snow">
           <div id="semantic-html-preview" class="preview ql-editor"></div>
         </div>
+        <pre id="semantic-html-code"></pre>
       </article>
 
       <article class="panel">
