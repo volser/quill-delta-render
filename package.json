@@ -75,6 +75,7 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
+    "verify": "npm run check",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "biome check src/",

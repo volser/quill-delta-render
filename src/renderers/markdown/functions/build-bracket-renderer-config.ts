@@ -50,7 +50,8 @@ export function buildBracketRendererConfig(
         return open ? `${open}${content}[/STYLE]` : content;
       },
       script: (content, value) => {
-        const attrs = value === 'super' ? { sup: true } : { sub: true };
+        const attrs: Record<string, string | boolean> =
+          value === 'super' ? { sup: true } : { sub: true };
         const open = styleTag(attrs);
         return open ? `${open}${content}[/STYLE]` : content;
       },
