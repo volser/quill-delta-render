@@ -7,9 +7,13 @@ on:
 jobs:
   test-and-verify:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -19,6 +23,17 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Apply Biome autofixes
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        run: npm run lint:fix && npm run format
+
+      - name: Commit autofixes
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: apply biome autofixes [skip ci]'
+          file_pattern: 'src/**/*.ts src/**/*.js src/**/*.json'
 
       - name: Run tests
         run: npm run test
