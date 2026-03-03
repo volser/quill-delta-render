@@ -102,6 +102,17 @@ function sanitizeUrl(url: string, cfg: ResolvedReactConfig): string | undefined 
   return url;
 }
 
+/**
+ * React equivalent of HTML renderers' `children || '<br/>'` behavior.
+ * Keeps empty block lines visible and structurally consistent.
+ */
+function withEmptyBlockPlaceholder(children: ReactNode): ReactNode {
+  if (children === null || children === undefined || children === false || children === '') {
+    return createElement('br');
+  }
+  return children;
+}
+
 // ─── Node Override Helpers ─────────────────────────────────────────────────
 
 function renderCodeBlockContainer(node: TNode, cfg: ResolvedReactConfig): ReactNode {
@@ -148,18 +159,18 @@ export function buildRendererConfig(
     blocks: {
       paragraph: withCustomComponent(cfg, 'paragraph', (node, children) => {
         const tag = resolveTag(cfg, 'paragraph', node, 'p');
-        return createElement(tag, null, children || null);
+        return createElement(tag, null, withEmptyBlockPlaceholder(children));
       }),
 
       header: withCustomComponent(cfg, 'header', (node, children) => {
         const level = getHeaderLevel(node);
         const tag = resolveTag(cfg, 'header', node, `h${level}`);
-        return createElement(tag, null, children || null);
+        return createElement(tag, null, withEmptyBlockPlaceholder(children));
       }),
 
       blockquote: withCustomComponent(cfg, 'blockquote', (node, children) => {
         const tag = resolveTag(cfg, 'blockquote', node, 'blockquote');
-        return createElement(tag, null, children || null);
+        return createElement(tag, null, withEmptyBlockPlaceholder(children));
       }),
 
       'code-block': withCustomComponent(cfg, 'code-block', {
@@ -168,7 +179,7 @@ export function buildRendererConfig(
           const props: Record<string, unknown> = { className: meta.className };
           if (meta.language) props['data-language'] = meta.language;
           const tag = resolveTag(cfg, 'code-block', node, 'pre');
-          return createElement(tag, props, children || null);
+          return createElement(tag, props, withEmptyBlockPlaceholder(children));
         },
         toProps: (meta) => {
           const props: Record<string, unknown> = { className: meta.className };
@@ -183,7 +194,11 @@ export function buildRendererConfig(
           const props: Record<string, unknown> = {};
           if (checked !== undefined) props['data-checked'] = checked;
           const tag = resolveTag(cfg, 'list-item', node, 'li');
-          return createElement(tag, Object.keys(props).length > 0 ? props : null, children || null);
+          return createElement(
+            tag,
+            Object.keys(props).length > 0 ? props : null,
+            withEmptyBlockPlaceholder(children),
+          );
         },
         toProps: (checked) => {
           if (checked !== undefined) return { 'data-checked': checked };

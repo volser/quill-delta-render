@@ -22,6 +22,11 @@ describe('ReactRenderer – blocks', () => {
         expect(html).toBe(`<div><h${level}>Heading ${level}</h${level}></div>`);
       }
     });
+
+    it('should render empty header with <br/>', () => {
+      const html = renderDelta(d({ insert: '\n', attributes: { header: 2 } }));
+      expect(html).toBe('<div><h2><br/></h2></div>');
+    });
   });
 
   describe('blockquotes', () => {
@@ -30,6 +35,11 @@ describe('ReactRenderer – blocks', () => {
         d({ insert: 'A quote' }, { insert: '\n', attributes: { blockquote: true } }),
       );
       expect(html).toBe('<div><blockquote>A quote</blockquote></div>');
+    });
+
+    it('should render empty blockquote with <br/>', () => {
+      const html = renderDelta(d({ insert: '\n', attributes: { blockquote: true } }));
+      expect(html).toBe('<div><blockquote><br/></blockquote></div>');
     });
   });
 
@@ -63,6 +73,11 @@ describe('ReactRenderer – blocks', () => {
         '<div><pre><code class="ql-syntax language-javascript">const x = 1;</code></pre></div>',
       );
     });
+
+    it('should render an empty code block container', () => {
+      const html = renderDelta(d({ insert: '\n', attributes: { 'code-block': true } }));
+      expect(html).toBe('<div><pre><code class="ql-syntax"></code></pre></div>');
+    });
   });
 
   describe('paragraphs', () => {
@@ -76,6 +91,11 @@ describe('ReactRenderer – blocks', () => {
         d({ insert: 'First paragraph\n' }, { insert: 'Second paragraph\n' }),
       );
       expect(html).toBe('<div><p>First paragraph</p><p>Second paragraph</p></div>');
+    });
+
+    it('should render empty paragraph with <br/>', () => {
+      const html = renderDelta(d({ insert: '\n' }));
+      expect(html).toBe('<div><p><br/></p></div>');
     });
   });
 });

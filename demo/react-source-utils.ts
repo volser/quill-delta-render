@@ -49,10 +49,11 @@ export const serializeReactNode = (node: React.ReactNode, depth = 0): string => 
 
   const openTag = `<${tag}${props.length ? ` ${props.join(' ')}` : ''}>`;
   const closeTag = `</${tag}>`;
+  const selfClosingTag = `<${tag}${props.length ? ` ${props.join(' ')}` : ''} />`;
   const children = serializeReactNode(node.props?.children, depth + 1);
 
   if (!children) {
-    return `${'  '.repeat(depth)}${openTag}${closeTag}`;
+    return `${'  '.repeat(depth)}${selfClosingTag}`;
   }
 
   return `${'  '.repeat(depth)}${openTag}\n${children}\n${'  '.repeat(depth)}${closeTag}`;

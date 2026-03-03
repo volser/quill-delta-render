@@ -39,6 +39,11 @@ describe('ReactRenderer – lists', () => {
     );
   });
 
+  it('should render empty checklist item with <br/>', () => {
+    const html = renderDelta(d({ insert: '\n', attributes: { list: 'unchecked' } }));
+    expect(html).toBe('<div><ul><li data-checked="false"><br/></li></ul></div>');
+  });
+
   it('should render nested bullet lists', () => {
     const html = renderDelta(
       d(
