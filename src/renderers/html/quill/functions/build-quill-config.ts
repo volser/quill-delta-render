@@ -53,6 +53,7 @@ const QUILL_MARK_PRIORITIES: Record<string, number> = {
  * - `rel="noopener noreferrer"` on links
  * - `data-row` on table cells
  * - `data-list` for all list items
+ * - `.ql-ui` marker span for list items
  * - `data-language` on code blocks with a specified language
  *
  * Layout classes (indent, align, direction) are computed centrally
@@ -102,6 +103,7 @@ export function buildQuillConfig(): RendererConfig<string, ResolvedAttrs> {
       'list-item': (node, children, resolvedAttrs) => {
         const listType = getListType(node);
         const content = children || '<br/>';
+        const uiMarker = `<span class="${PREFIX}-ui" contenteditable="false"></span>`;
 
         const classes = [...(resolvedAttrs.classes ?? [])];
         const attrs: Record<string, string> = {};
@@ -110,7 +112,7 @@ export function buildQuillConfig(): RendererConfig<string, ResolvedAttrs> {
         }
         attrs['data-list'] = listType;
 
-        return `<li${buildAttrString(attrs)}>${content}</li>`;
+        return `<li${buildAttrString(attrs)}>${uiMarker}${content}</li>`;
       },
 
       list: (_node, children) => {

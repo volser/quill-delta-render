@@ -12,7 +12,7 @@ describe('QuillHtmlRenderer integration: lists', () => {
       ],
     });
     expect(html).toBe(
-      '<ol><li data-list="bullet">Item 1</li><li data-list="bullet">Item 2</li></ol>',
+      '<ol><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Item 1</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Item 2</li></ol>',
     );
   });
 
@@ -26,7 +26,7 @@ describe('QuillHtmlRenderer integration: lists', () => {
       ],
     });
     expect(html).toBe(
-      '<ol><li data-list="ordered">First</li><li data-list="ordered">Second</li></ol>',
+      '<ol><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>First</li><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>Second</li></ol>',
     );
   });
 
@@ -34,14 +34,18 @@ describe('QuillHtmlRenderer integration: lists', () => {
     const html = renderDelta({
       ops: [{ insert: 'Done' }, { insert: '\n', attributes: { list: 'checked' } }],
     });
-    expect(html).toContain('<li data-list="checked">Done</li>');
+    expect(html).toContain(
+      '<li data-list="checked"><span class="ql-ui" contenteditable="false"></span>Done</li>',
+    );
   });
 
   it('should render unchecked items with data-list="unchecked"', () => {
     const html = renderDelta({
       ops: [{ insert: 'Not done' }, { insert: '\n', attributes: { list: 'unchecked' } }],
     });
-    expect(html).toContain('<li data-list="unchecked">Not done</li>');
+    expect(html).toContain(
+      '<li data-list="unchecked"><span class="ql-ui" contenteditable="false"></span>Not done</li>',
+    );
   });
 
   it('should render mixed checked and unchecked list items', () => {
@@ -54,7 +58,7 @@ describe('QuillHtmlRenderer integration: lists', () => {
       ],
     });
     expect(html).toBe(
-      '<ol><li data-list="checked">Done</li><li data-list="unchecked">Not done</li></ol>',
+      '<ol><li data-list="checked"><span class="ql-ui" contenteditable="false"></span>Done</li><li data-list="unchecked"><span class="ql-ui" contenteditable="false"></span>Not done</li></ol>',
     );
   });
 
@@ -68,7 +72,7 @@ describe('QuillHtmlRenderer integration: lists', () => {
       ],
     });
     expect(html).toBe(
-      '<ol><li data-list="bullet">Parent</li><li class="ql-indent-1" data-list="bullet">Child</li></ol>',
+      '<ol><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Parent</li><li class="ql-indent-1" data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Child</li></ol>',
     );
   });
 
@@ -76,7 +80,9 @@ describe('QuillHtmlRenderer integration: lists', () => {
     const html = renderDelta({
       ops: [{ insert: '\n', attributes: { list: 'bullet' } }],
     });
-    expect(html).toContain('<li data-list="bullet"><br/></li>');
+    expect(html).toContain(
+      '<li data-list="bullet"><span class="ql-ui" contenteditable="false"></span><br/></li>',
+    );
   });
 
   it('should render list item with align class', () => {
@@ -112,7 +118,7 @@ describe('QuillHtmlRenderer integration: lists', () => {
       ],
     });
     expect(html).toBe(
-      '<ol><li data-list="ordered">ordered</li><li data-list="bullet">bullet</li></ol>',
+      '<ol><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>ordered</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>bullet</li></ol>',
     );
   });
 });

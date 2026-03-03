@@ -10,7 +10,7 @@ import { buildQuillConfig } from './functions/build-quill-config';
  * - `spellcheck="false"` on code blocks
  * - `rel="noopener noreferrer"` on links
  * - `data-row` on table cells
- * - `data-list` attribute for checked/unchecked list items
+ * - `data-list` and `.ql-ui` markers on list items
  * - Formula and video embed support
  *
  * For a configurable HTML renderer (with custom class prefix, inline styles,
