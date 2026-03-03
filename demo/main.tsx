@@ -24,6 +24,15 @@ const INITIAL_DELTA = {
     { insert: ', ' },
     { insert: 'underline', attributes: { underline: true } },
     { insert: ', links, lists, code blocks, and more.\n' },
+    { insert: 'Nested bullet list example:\n' },
+    { insert: 'Parent item 1' },
+    { insert: '\n', attributes: { list: 'bullet' } },
+    { insert: 'Child item 1.1' },
+    { insert: '\n', attributes: { list: 'bullet', indent: 1 } },
+    { insert: 'Child item 1.2' },
+    { insert: '\n', attributes: { list: 'bullet', indent: 1 } },
+    { insert: 'Parent item 2' },
+    { insert: '\n', attributes: { list: 'bullet' } },
   ],
 };
 
