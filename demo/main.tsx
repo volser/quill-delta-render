@@ -5,6 +5,7 @@ import { parseQuillDelta } from '../src/parse-quill-delta';
 import { QuillHtmlRenderer } from '../src/renderers/html/quill/quill-html-renderer';
 import { SemanticHtmlRenderer } from '../src/renderers/html/semantic/semantic-html-renderer';
 import { ReactRenderer } from '../src/renderers/react/react-renderer';
+import { serializeReactNode } from './react-source-utils';
 import './styles.css';
 import 'quill/dist/quill.snow.css';
 
@@ -73,6 +74,7 @@ app.innerHTML = `
         <div class="preview-shell ql-container ql-snow">
           <div id="react-preview" class="preview ql-editor"></div>
         </div>
+        <pre id="react-code"></pre>
       </article>
     </section>
   </main>
@@ -100,13 +102,15 @@ const quillHtmlPreviewEl = document.querySelector('#quill-html-preview');
 const semanticHtmlCodeEl = document.querySelector('#semantic-html-code');
 const semanticHtmlPreviewEl = document.querySelector('#semantic-html-preview');
 const reactPreviewEl = document.querySelector('#react-preview');
+const reactCodeEl = document.querySelector('#react-code');
 
 if (
   !quillHtmlCodeEl ||
   !quillHtmlPreviewEl ||
   !semanticHtmlCodeEl ||
   !semanticHtmlPreviewEl ||
-  !reactPreviewEl
+  !reactPreviewEl ||
+  !reactCodeEl
 ) {
   throw new Error('Missing output containers');
 }
@@ -129,6 +133,7 @@ const renderOutputs = () => {
 
   quillHtmlPreviewEl.innerHTML = quillHtml;
   semanticHtmlPreviewEl.innerHTML = semanticHtml;
+  reactCodeEl.textContent = serializeReactNode(reactNode);
 
   reactRoot.render(React.createElement(React.Fragment, null, reactNode));
 };
