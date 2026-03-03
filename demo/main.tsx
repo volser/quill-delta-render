@@ -1,6 +1,7 @@
 import Quill from 'quill';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { blockMerger, codeBlockGrouper, flatListGrouper, tableGrouper } from '../src/common';
 import { parseQuillDelta } from '../src/parse-quill-delta';
 import { QuillHtmlRenderer } from '../src/renderers/html/quill/quill-html-renderer';
 import { SemanticHtmlRenderer } from '../src/renderers/html/semantic/semantic-html-renderer';
@@ -136,14 +137,16 @@ const quillHtmlRenderer = new QuillHtmlRenderer();
 const semanticHtmlRenderer = new SemanticHtmlRenderer();
 const reactRenderer = new ReactRenderer();
 const reactRoot = createRoot(reactPreviewEl);
+const quillDemoTransformers = [flatListGrouper, tableGrouper, codeBlockGrouper, blockMerger()];
 
 const renderOutputs = () => {
   const delta = quill.getContents();
-  const ast = parseQuillDelta(delta as never);
+  const semanticAst = parseQuillDelta(delta as never);
+  const quillAst = parseQuillDelta(delta as never, { transformers: quillDemoTransformers });
 
-  const quillHtml = quillHtmlRenderer.render(ast);
-  const semanticHtml = semanticHtmlRenderer.render(ast);
-  const reactNode = reactRenderer.render(ast);
+  const quillHtml = quillHtmlRenderer.render(quillAst);
+  const semanticHtml = semanticHtmlRenderer.render(semanticAst);
+  const reactNode = reactRenderer.render(semanticAst);
 
   quillHtmlCodeEl.textContent = quillHtml;
   semanticHtmlCodeEl.textContent = semanticHtml;
