@@ -1,5 +1,7 @@
 # quill-delta-renderer
 
+[![CI](https://github.com/volser/quill-delta-renderer/actions/workflows/ci.yml/badge.svg)](https://github.com/volser/quill-delta-renderer/actions/workflows/ci.yml)
+
 A framework-agnostic, AST-based engine for converting [Quill](https://quilljs.com/) Deltas into HTML, Markdown, React components, or any custom format.
 
 ## Features
