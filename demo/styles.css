@@ -69,6 +69,23 @@ pre {
   padding: 12px;
 }
 
+.preview-shell {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 80px;
+}
+
+.preview-shell .preview.ql-editor {
+  border: 0;
+  border-radius: 0;
+  min-height: 80px;
+}
+
+
+
+
+
 #editor {
   min-height: 240px;
 }

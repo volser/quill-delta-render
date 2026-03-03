@@ -55,18 +55,24 @@ app.innerHTML = `
       <article class="panel">
         <h2>Quill HTML</h2>
         <pre id="quill-html-code"></pre>
-        <div id="quill-html-preview" class="preview"></div>
+        <div class="preview-shell ql-container ql-snow">
+          <div id="quill-html-preview" class="preview ql-editor"></div>
+        </div>
       </article>
 
       <article class="panel">
         <h2>Semantic HTML</h2>
         <pre id="semantic-html-code"></pre>
-        <div id="semantic-html-preview" class="preview"></div>
+        <div class="preview-shell ql-container ql-snow">
+          <div id="semantic-html-preview" class="preview ql-editor"></div>
+        </div>
       </article>
 
       <article class="panel">
         <h2>React Render</h2>
-        <div id="react-preview" class="preview"></div>
+        <div class="preview-shell ql-container ql-snow">
+          <div id="react-preview" class="preview ql-editor"></div>
+        </div>
       </article>
     </section>
   </main>
