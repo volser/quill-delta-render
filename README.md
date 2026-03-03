@@ -4,6 +4,11 @@
 
 A framework-agnostic, AST-based engine for converting [Quill](https://quilljs.com/) Deltas into HTML, Markdown, React components, or any custom format.
 
+## Live Demo
+
+- https://volser.github.io/quill-delta-renderer/
+- Local run: `npm run demo:dev`
+
 ## Features
 
 - **Three-stage pipeline** -- Parse, Transform, Render -- each stage is independent and extensible
@@ -249,6 +254,10 @@ The library ships two HTML renderers:
 **2-5x faster** than `quill-delta-to-html` across all scenarios. For a realistic mixed-content document the renderer is **3.65x faster**.
 
 See [BENCHMARKS.md](./BENCHMARKS.md) for full results and methodology.
+
+## Demo Publishing
+
+The interactive demo is built from `demo/` and deployed to GitHub Pages by `.github/workflows/demo-pages.yml` on every push to `main`.
 
 ## License
 

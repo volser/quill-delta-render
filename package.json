@@ -74,6 +74,10 @@
   ],
   "scripts": {
     "build": "tsup",
+    "demo:dev": "vite demo",
+    "demo:build": "vite build demo --outDir demo-dist",
+    "demo:build:gh": "vite build demo --outDir demo-dist --base=/quill-delta-renderer/",
+    "demo:preview": "vite preview demo-dist",
     "test": "vitest run",
     "verify": "npm run check",
     "test:watch": "vitest",
@@ -127,6 +131,7 @@
     "react-dom": "^19.2.4",
     "tsup": "^8.4.0",
     "typescript": "^5.7.0",
+    "vite": "^7.3.1",
     "vitest": "^3.0.0"
   },
   "peerDependencies": {
