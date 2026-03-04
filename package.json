@@ -136,6 +136,7 @@
     "quill-delta-to-react": "^1.2.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-element-to-jsx-string": "^17.0.1",
     "tsup": "^8.4.0",
     "typescript": "^5.7.0",
     "vite": "^7.3.1",
