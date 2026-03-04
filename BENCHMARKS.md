@@ -89,12 +89,22 @@ Speedup is computed from the **→ HTML** columns (same serialization path).
 | --- | ---: | ---: | ---: | ---: |
 | Mixed-content document | 11,432 ops/s | 8,371 ops/s | 3,766 ops/s | **2.22x** |
 
+### Re-render (DOM reconciliation)
+
+Measures update performance: both libraries are mounted into jsdom, then the delta is slightly modified (one text edit + one attribute toggle) and re-rendered via `flushSync`. This exercises React's full reconciliation path.
+
+| Scenario | ReactRenderer | quill-delta-to-react | Speedup |
+| --- | ---: | ---: | ---: |
+| 5 formatted blocks | 6,767 ops/s | 5,254 ops/s | **1.29x** |
+| 50 formatted blocks | 897 ops/s | 603 ops/s | **1.49x** |
+| Mixed-content document | 5,951 ops/s | 2,601 ops/s | **2.29x** |
+
 ### Key takeaways
 
-- **1.5-2.9x faster** across all scenarios when comparing HTML output end-to-end.
+- **1.5-2.9x faster** across all scenarios when comparing HTML output end-to-end (`renderToStaticMarkup`).
+- **1.3-2.3x faster** on DOM re-renders (reconciliation), where React does the diffing. The advantage grows with document complexity because our pre-built element tree gives React a simpler diff target.
 - Creating React elements alone (without serialization) is **2-3.8x faster** than `quill-delta-to-react`'s full render, showing efficient AST-to-element conversion.
-- The `renderToStaticMarkup()` serialization step adds ~30-50% overhead on top of element creation, yet the pipeline still outperforms the alternative.
-- For a **realistic mixed-content document**, the renderer is **2.22x faster** (or **3.04x** comparing elements only).
+- For a **realistic mixed-content document**: **2.22x faster** (HTML), **2.29x faster** (re-render).
 
 ## Methodology
 
@@ -103,5 +113,6 @@ Speedup is computed from the **→ HTML** columns (same serialization path).
 - `ReactRenderer` uses the same parsing pipeline, producing React elements; HTML output uses `renderToStaticMarkup()`.
 - `quill-delta-to-html` uses `new QuillDeltaToHtmlConverter(ops).convert()`.
 - `quill-delta-to-react` uses `renderToStaticMarkup(createElement(RenderDelta, { ops }))`.
+- Re-render benchmarks mount both libraries into jsdom via `createRoot`, then alternate between two slightly different deltas using `flushSync` to force synchronous reconciliation.
 - The renderer instance is reused across iterations (matching real-world usage). The converters are instantiated per call (required by their API).
 - Measured with Vitest's built-in benchmarking (tinybench under the hood), with default warm-up and iteration settings.
