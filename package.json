@@ -133,6 +133,7 @@
     "lint-staged": "16.2.7",
     "quill": "^2.0.3",
     "quill-delta-to-html": "^0.12.1",
+    "quill-delta-to-react": "^1.2.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tsup": "^8.4.0",

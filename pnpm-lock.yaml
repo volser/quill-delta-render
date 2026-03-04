@@ -32,6 +32,9 @@ importers:
       quill-delta-to-html:
         specifier: ^0.12.1
         version: 0.12.1
+      quill-delta-to-react:
+        specifier: ^1.2.0
+        version: 1.2.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -911,6 +914,12 @@ packages:
 
   quill-delta-to-html@0.12.1:
     resolution: {integrity: sha512-QhpeMk9+5ge3HYbL5A0Ewz3pXCsbemqGvIF/kw5D6D4V68AtcUp7yt9xNUkzOk/0IQz43hKy3IkzBzRhLIE+oA==}
+
+  quill-delta-to-react@1.2.0:
+    resolution: {integrity: sha512-5gc9JJYJPKjYtCXHnl7qnNUSLiOQLl4v9uSCkPxDOX5ptqKlqY2G4w5f1zVkfkxXOzHHSdkGwtax7LycKENXEQ==}
+    peerDependencies:
+      react: ^19.1.1
+      react-dom: ^19.1.1
 
   quill-delta@5.1.0:
     resolution: {integrity: sha512-X74oCeRI4/p0ucjb5Ma8adTXd9Scumz367kkMK5V/IatcX6A0vlgLgKbzXWy5nZmCGeNJm2oQX0d2Eqj+ZIlCA==}
@@ -1934,6 +1943,12 @@ snapshots:
   quill-delta-to-html@0.12.1:
     dependencies:
       lodash.isequal: 4.5.0
+
+  quill-delta-to-react@1.2.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      lodash.isequal: 4.5.0
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
 
   quill-delta@5.1.0:
     dependencies:
