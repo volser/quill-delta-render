@@ -251,7 +251,8 @@ The library ships two HTML renderers:
 
 ## Performance
 
-**2-5x faster** than `quill-delta-to-html` across all scenarios. For a realistic mixed-content document the renderer is **3.65x faster**.
+- **HTML Renderer** — **2-5x faster** than `quill-delta-to-html`. For a realistic mixed-content document: **3.65x faster**.
+- **React Renderer** — **1.5-2.9x faster** than `quill-delta-to-react`. For a realistic mixed-content document: **2.22x faster**.
 
 See [BENCHMARKS.md](./BENCHMARKS.md) for full results and methodology.
 
