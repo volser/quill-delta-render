@@ -60,34 +60,29 @@ A single document combining headers, formatted paragraphs, checklists, blockquot
 
 Comparison of **`ReactRenderer`** (this library) vs **`quill-delta-to-react`** (v1.2.0).
 
-Two measurements for `ReactRenderer`:
-
-- **elements** — just creating React element trees (no serialization)
-- **→ HTML** — elements + `renderToStaticMarkup()` (apples-to-apples comparison with `quill-delta-to-react`)
-
-Speedup is computed from the **→ HTML** columns (same serialization path).
+Both are measured via `renderToStaticMarkup()` for an apples-to-apples comparison — `quill-delta-to-react` uses hooks internally and can only be executed through React's rendering pipeline.
 
 ### Plain text paragraphs
 
-| Scenario | ReactRenderer (elements) | ReactRenderer → HTML | quill-delta-to-react | Speedup |
-| --- | ---: | ---: | ---: | ---: |
-| 5 paragraphs | 88,936 ops/s | 59,282 ops/s | 23,649 ops/s | **2.51x** |
-| 50 paragraphs | 8,744 ops/s | 7,186 ops/s | 3,011 ops/s | **2.39x** |
-| 500 paragraphs | 810 ops/s | 761 ops/s | 266 ops/s | **2.86x** |
+| Scenario | ReactRenderer | quill-delta-to-react | Speedup |
+| --- | ---: | ---: | ---: |
+| 5 paragraphs | 59,282 ops/s | 23,649 ops/s | **2.51x** |
+| 50 paragraphs | 7,186 ops/s | 3,011 ops/s | **2.39x** |
+| 500 paragraphs | 761 ops/s | 266 ops/s | **2.86x** |
 
 ### Formatted text (bold, italic, links, colors)
 
-| Scenario | ReactRenderer (elements) | ReactRenderer → HTML | quill-delta-to-react | Speedup |
-| --- | ---: | ---: | ---: | ---: |
-| 5 blocks | 15,532 ops/s | 11,238 ops/s | 7,271 ops/s | **1.55x** |
-| 50 blocks | 1,605 ops/s | 1,212 ops/s | 804 ops/s | **1.51x** |
-| 200 blocks | 394 ops/s | 336 ops/s | 173 ops/s | **1.94x** |
+| Scenario | ReactRenderer | quill-delta-to-react | Speedup |
+| --- | ---: | ---: | ---: |
+| 5 blocks | 11,238 ops/s | 7,271 ops/s | **1.55x** |
+| 50 blocks | 1,212 ops/s | 804 ops/s | **1.51x** |
+| 200 blocks | 394 ops/s | 173 ops/s | **2.28x** |
 
 ### Realistic document (mixed content)
 
-| Scenario | ReactRenderer (elements) | ReactRenderer → HTML | quill-delta-to-react | Speedup |
-| --- | ---: | ---: | ---: | ---: |
-| Mixed-content document | 11,432 ops/s | 8,371 ops/s | 3,766 ops/s | **2.22x** |
+| Scenario | ReactRenderer | quill-delta-to-react | Speedup |
+| --- | ---: | ---: | ---: |
+| Mixed-content document | 8,371 ops/s | 3,766 ops/s | **2.22x** |
 
 ### Re-render (DOM reconciliation)
 
@@ -103,7 +98,6 @@ Measures update performance: both libraries are mounted into jsdom, then the del
 
 - **1.5-2.9x faster** across all scenarios when comparing HTML output end-to-end (`renderToStaticMarkup`).
 - **1.3-2.3x faster** on DOM re-renders (reconciliation), where React does the diffing. The advantage grows with document complexity because our pre-built element tree gives React a simpler diff target.
-- Creating React elements alone (without serialization) is **2-3.8x faster** than `quill-delta-to-react`'s full render, showing efficient AST-to-element conversion.
 - For a **realistic mixed-content document**: **2.22x faster** (HTML), **2.29x faster** (re-render).
 
 ## Methodology
