@@ -150,3 +150,12 @@ pre {
 #editor {
   min-height: 240px;
 }
+
+@keyframes dom-flash {
+  from { background-color: rgba(250, 204, 21, 0.3); }
+  to { background-color: transparent; }
+}
+
+.preview-shell * {
+  animation: dom-flash 0.6s ease-out;
+}

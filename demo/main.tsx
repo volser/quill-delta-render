@@ -158,5 +158,17 @@ const renderOutputs = () => {
   reactRoot.render(React.createElement(React.Fragment, null, reactNode));
 };
 
+for (const el of [reactPreviewEl, quillHtmlPreviewEl, semanticHtmlPreviewEl]) {
+  new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      const parent = m.target.parentElement;
+      if (!parent) continue;
+      parent.style.animation = 'none';
+      void parent.offsetWidth;
+      parent.style.animation = '';
+    }
+  }).observe(el, { characterData: true, subtree: true });
+}
+
 quill.on('text-change', renderOutputs);
 renderOutputs();
