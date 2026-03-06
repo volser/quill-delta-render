@@ -1,3 +1,5 @@
+import hljs from 'highlight.js';
+import 'highlight.js/styles/monokai-sublime.css';
 import Quill from 'quill';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -54,14 +56,14 @@ const INITIAL_DELTA = {
     { insert: 'Quick start:' },
     { insert: '\n', attributes: { header: 3 } },
     { insert: "import { parseQuillDelta } from 'quill-delta-renderer';" },
-    { insert: '\n', attributes: { 'code-block': 'typescript' } },
+    { insert: '\n', attributes: { 'code-block': 'javascript' } },
     { insert: "import { SemanticHtmlRenderer } from 'quill-delta-renderer';" },
-    { insert: '\n', attributes: { 'code-block': 'typescript' } },
-    { insert: '\n', attributes: { 'code-block': 'typescript' } },
+    { insert: '\n', attributes: { 'code-block': 'javascript' } },
+    { insert: '\n', attributes: { 'code-block': 'javascript' } },
     { insert: 'const ast = parseQuillDelta(delta);' },
-    { insert: '\n', attributes: { 'code-block': 'typescript' } },
+    { insert: '\n', attributes: { 'code-block': 'javascript' } },
     { insert: 'const html = new SemanticHtmlRenderer().render(ast);' },
-    { insert: '\n', attributes: { 'code-block': 'typescript' } },
+    { insert: '\n', attributes: { 'code-block': 'javascript' } },
     { insert: '\n' },
   ],
 };
@@ -112,6 +114,7 @@ app.innerHTML = `
 const quill = new Quill('#editor', {
   theme: 'snow',
   modules: {
+    syntax: { hljs },
     toolbar: [
       [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
