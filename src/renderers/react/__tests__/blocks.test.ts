@@ -48,7 +48,7 @@ describe('ReactRenderer – blocks', () => {
       const html = renderDelta(
         d({ insert: 'const x = 1;' }, { insert: '\n', attributes: { 'code-block': true } }),
       );
-      expect(html).toBe('<div><pre><code class="ql-syntax">const x = 1;</code></pre></div>');
+      expect(html).toBe('<div><pre>const x = 1;</pre></div>');
     });
 
     it('should render a multi-line code block', () => {
@@ -60,9 +60,7 @@ describe('ReactRenderer – blocks', () => {
           { insert: '\n', attributes: { 'code-block': true } },
         ),
       );
-      expect(html).toBe(
-        '<div><pre><code class="ql-syntax">const x = 1;\nconst y = 2;</code></pre></div>',
-      );
+      expect(html).toBe('<div><pre>const x = 1;\nconst y = 2;</pre></div>');
     });
 
     it('should render a code block with language', () => {
@@ -70,13 +68,13 @@ describe('ReactRenderer – blocks', () => {
         d({ insert: 'const x = 1;' }, { insert: '\n', attributes: { 'code-block': 'javascript' } }),
       );
       expect(html).toBe(
-        '<div><pre><code class="ql-syntax language-javascript">const x = 1;</code></pre></div>',
+        '<div><pre class="language-javascript" data-language="javascript">const x = 1;</pre></div>',
       );
     });
 
     it('should render an empty code block container', () => {
       const html = renderDelta(d({ insert: '\n', attributes: { 'code-block': true } }));
-      expect(html).toBe('<div><pre><code class="ql-syntax"></code></pre></div>');
+      expect(html).toBe('<div><pre></pre></div>');
     });
   });
 

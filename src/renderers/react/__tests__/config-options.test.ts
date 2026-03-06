@@ -3,10 +3,10 @@ import { d, renderDelta } from './test-helpers';
 describe('ReactRenderer – config options', () => {
   it('should support custom classPrefix', () => {
     const html = renderDelta(
-      d({ insert: 'code' }, { insert: '\n', attributes: { 'code-block': 'javascript' } }),
+      d({ insert: 'mono', attributes: { font: 'monospace' } }, { insert: '\n' }),
       { classPrefix: 'article' },
     );
-    expect(html).toContain('class="article-syntax language-javascript"');
+    expect(html).toContain('class="article-font-monospace"');
   });
 
   it('should support custom linkTarget', () => {

@@ -9,8 +9,6 @@
  * difference should be the rendering output format.
  *
  * Known structural differences (tested separately at the bottom):
- *   - Empty blocks: Semantic renders `<br/>` inside empty blocks; React renders nothing
- *   - Code block containers: Semantic renders `<pre>`, React renders `<pre><code class="ql-syntax">`
  *   - Images: Semantic adds `ql-image` class and omits alt; React has no class but adds `alt=""`
  *   - Videos: Boolean attribute `allowfullscreen="true"` (Semantic) vs `allowfullscreen=""` (React)
  *   - Block layout attributes: Semantic adds `ql-indent-*`, `ql-align-*`, `ql-direction-*` classes;
@@ -560,56 +558,30 @@ describe('Compat: complex mixed content', () => {
 // difference, so we'll catch if either renderer changes behavior.
 // ═════════════════════════════════════════════════════════════════════════════
 
-describe('Known differences: code block containers', () => {
-  // Semantic: <pre>content</pre>
-  // React: <pre><code class="ql-syntax">content</code></pre>
+// ─── Code blocks ────────────────────────────────────────────────────────────
 
-  it('single code block has different structure', () => {
-    const delta = d(
-      { insert: 'const x = 1;' },
-      { insert: '\n', attributes: { 'code-block': true } },
+describe('Compat: code blocks', () => {
+  it('single code block', () => {
+    assertSameHtml(
+      d({ insert: 'const x = 1;' }, { insert: '\n', attributes: { 'code-block': true } }),
     );
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    // Semantic renders as <pre> directly
-    expect(semantic).toBe('<pre>const x = 1;</pre>');
-    // React wraps in <pre><code class="ql-syntax">
-    expect(react).toBe('<pre><code class="ql-syntax">const x = 1;</code></pre>');
-    expect(semantic).not.toBe(react);
   });
 
-  it('multi-line code block has different structure', () => {
-    const delta = d(
-      { insert: 'line 1' },
-      { insert: '\n', attributes: { 'code-block': true } },
-      { insert: 'line 2' },
-      { insert: '\n', attributes: { 'code-block': true } },
+  it('multi-line code block', () => {
+    assertSameHtml(
+      d(
+        { insert: 'line 1' },
+        { insert: '\n', attributes: { 'code-block': true } },
+        { insert: 'line 2' },
+        { insert: '\n', attributes: { 'code-block': true } },
+      ),
     );
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    expect(semantic).toContain('line 1\nline 2');
-    expect(react).toContain('line 1\nline 2');
-    // Both have single <pre> but React has the <code> wrapper
-    expect(react).toContain('<code');
-    expect(semantic).not.toContain('<code');
   });
 
-  it('code block with language has different class placement', () => {
-    const delta = d(
-      { insert: 'const x = 1;' },
-      { insert: '\n', attributes: { 'code-block': 'javascript' } },
+  it('code block with language', () => {
+    assertSameHtml(
+      d({ insert: 'const x = 1;' }, { insert: '\n', attributes: { 'code-block': 'javascript' } }),
     );
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    // Semantic: class and data-language on <pre>
-    expect(semantic).toContain('<pre');
-    expect(semantic).toContain('language-javascript');
-    expect(semantic).toContain('data-language="javascript"');
-    // React: class on <code> inside <pre>
-    expect(react).toContain('<code class="language-javascript ql-syntax"');
   });
 });
 

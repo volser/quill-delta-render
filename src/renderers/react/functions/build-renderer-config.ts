@@ -3,7 +3,6 @@ import { DEFAULT_MARK_PRIORITIES } from '../../../common/default-mark-priorities
 import type { RendererConfig, TNode } from '../../../core/ast-types';
 import { getHeaderLevel, getListType, getTableRow } from '../../common/node-attributes';
 import {
-  buildCodeBlockClassName,
   resolveCheckedState,
   resolveCodeBlockMeta,
   resolveLinkMeta,
@@ -117,12 +116,16 @@ function withEmptyBlockPlaceholder(children: ReactNode): ReactNode {
 
 function renderCodeBlockContainer(node: TNode, cfg: ResolvedReactConfig): ReactNode {
   const { language, lines } = resolveCodeBlockLines(node);
-  const className = buildCodeBlockClassName(language, cfg.classPrefix);
 
   const linesWithNewlines = lines.map((text, i) => (i < lines.length - 1 ? `${text}\n` : text));
 
-  const codeElement = createElement('code', { className }, ...linesWithNewlines);
-  return createElement('pre', null, codeElement);
+  const props: Record<string, unknown> = {};
+  if (language) {
+    props.className = `language-${language}`;
+    props['data-language'] = language;
+  }
+
+  return createElement('pre', Object.keys(props).length > 0 ? props : null, ...linesWithNewlines);
 }
 
 // ─── Builder ────────────────────────────────────────────────────────────────
