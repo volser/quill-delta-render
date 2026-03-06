@@ -61,6 +61,21 @@ pre {
   margin: 12px 0 0;
 }
 
+/* Match Quill's code block styling inside preview panels */
+.preview-shell .ql-editor pre {
+  background: #23241f;
+  color: #f8f8f2;
+  border-radius: 3px;
+  padding: 5px 10px;
+  font-family: monospace;
+  font-size: 13px;
+  max-height: none;
+  margin: 5px 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  overflow: visible;
+}
+
 .preview {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
