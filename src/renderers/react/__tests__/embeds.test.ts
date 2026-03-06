@@ -6,7 +6,7 @@ describe('ReactRenderer – embeds', () => {
       d({ insert: { image: 'https://example.com/img.png' } }, { insert: '\n' }),
     );
     // React 19 may prepend a <link rel="preload"> for img elements
-    expect(html).toContain('<img src="https://example.com/img.png" alt=""/>');
+    expect(html).toContain('<img class="ql-image" src="https://example.com/img.png"/>');
     expect(html).toContain('<div><p>');
   });
 
@@ -21,7 +21,7 @@ describe('ReactRenderer – embeds', () => {
       ),
     );
     expect(html).toContain('<a href="https://example.com" target="_blank">');
-    expect(html).toContain('<img src="https://example.com/img.png" alt=""/>');
+    expect(html).toContain('<img class="ql-image" src="https://example.com/img.png"/>');
   });
 
   it('should render a video iframe', () => {

@@ -261,7 +261,11 @@ export function buildRendererConfig(
         render: (img) => {
           if (!img) return null;
 
-          const imgProps: Record<string, unknown> = { src: img.src, alt: img.alt };
+          const imgProps: Record<string, unknown> = {
+            className: `${cfg.classPrefix}-image`,
+            src: img.src,
+          };
+          if (img.alt) imgProps.alt = img.alt;
           if (img.width) imgProps.width = img.width;
           if (img.height) imgProps.height = img.height;
 
@@ -280,7 +284,8 @@ export function buildRendererConfig(
         },
         toProps: (img) => {
           if (!img) return undefined;
-          const props: Record<string, unknown> = { src: img.src, alt: img.alt };
+          const props: Record<string, unknown> = { src: img.src };
+          if (img.alt) props.alt = img.alt;
           if (img.width) props.width = img.width;
           if (img.height) props.height = img.height;
           return props;

@@ -8,9 +8,6 @@
  * (listGrouper, tableGrouper, codeBlockGrouper, blockMerger). The only
  * difference should be the rendering output format.
  *
- * Known structural differences (tested separately at the bottom):
- *   - Images: Semantic adds `ql-image` class and omits alt; React has no class but adds `alt=""`
- *   - Videos: Boolean attribute `allowfullscreen="true"` (Semantic) vs `allowfullscreen=""` (React)
  */
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -548,14 +545,6 @@ describe('Compat: complex mixed content', () => {
   });
 });
 
-// ═════════════════════════════════════════════════════════════════════════════
-// Known structural differences between renderers
-//
-// These tests document and verify the expected divergences. Each test
-// renders the same delta through both pipelines and asserts the specific
-// difference, so we'll catch if either renderer changes behavior.
-// ═════════════════════════════════════════════════════════════════════════════
-
 // ─── Code blocks ────────────────────────────────────────────────────────────
 
 describe('Compat: code blocks', () => {
@@ -583,70 +572,19 @@ describe('Compat: code blocks', () => {
   });
 });
 
-describe('Known differences: images', () => {
-  // Semantic (defaults): adds ql-image class, no alt attribute
-  // React: no ql-image class, adds alt=""
+// ─── Images ─────────────────────────────────────────────────────────────────
 
-  it('image attributes differ', () => {
-    const delta = d({ insert: { image: 'https://example.com/img.png' } }, { insert: '\n' });
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    // Semantic has ql-image class, no alt
-    expect(semantic).toContain('class="ql-image"');
-    expect(semantic).not.toContain('alt=');
-    // React has alt="", no ql-image class
-    expect(react).toContain('alt=""');
-    expect(react).not.toContain('ql-image');
+describe('Compat: images', () => {
+  it('simple image', () => {
+    assertSameHtml(d({ insert: { image: 'https://example.com/img.png' } }, { insert: '\n' }));
   });
 });
 
-describe('Known differences: videos', () => {
-  // Semantic: frameborder="0" allowfullscreen="true"  (lowercase attrs, explicit true)
-  // React:    frameBorder="0" allowFullScreen=""       (camelCase attrs, empty boolean)
-  // Trailing empty paragraph is expected to be equal after normalization.
+// ─── Videos ─────────────────────────────────────────────────────────────────
 
-  it('video iframe — both renderers produce equivalent iframe element', () => {
-    const delta = d({ insert: { video: 'https://youtube.com/embed/abc' } }, { insert: '\n' });
-    const rawSemantic = renderSemantic(delta);
-    const rawReact = stripReactWrapper(renderReact(delta));
-
-    // Both contain iframe with ql-video class
-    expect(rawSemantic).toContain('class="ql-video"');
-    expect(rawReact).toContain('class="ql-video"');
-
-    // Both contain the src
-    expect(rawSemantic).toContain('src="https://youtube.com/embed/abc"');
-    expect(rawReact).toContain('src="https://youtube.com/embed/abc"');
-  });
-
-  it('video iframe — attribute casing and boolean style differ before normalization', () => {
-    const delta = d({ insert: { video: 'https://youtube.com/embed/abc' } }, { insert: '\n' });
-    const rawSemantic = renderSemantic(delta);
-    const rawReact = stripReactWrapper(renderReact(delta));
-
-    // Semantic uses lowercase attributes
-    expect(rawSemantic).toContain('frameborder="0"');
-    expect(rawSemantic).toContain('allowfullscreen="true"');
-
-    // React uses camelCase attributes and empty-string boolean
-    expect(rawReact).toContain('frameBorder="0"');
-    expect(rawReact).toContain('allowFullScreen=""');
-  });
-
-  it('video iframe — normalization brings full output to parity', () => {
-    const delta = d({ insert: { video: 'https://youtube.com/embed/abc' } }, { insert: '\n' });
-    const normalizedSemantic = normalizeHtml(renderSemantic(delta));
-    const normalizedReact = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    // Extract just the iframe portion (before the trailing paragraph)
-    const iframeSemantic = normalizedSemantic.match(/<iframe[^>]*><\/iframe>/)?.[0];
-    const iframeReact = normalizedReact.match(/<iframe[^>]*><\/iframe>/)?.[0];
-
-    expect(iframeReact).toBe(iframeSemantic);
-
-    // Full normalized output should match, including trailing empty paragraph
-    expect(normalizedReact).toBe(normalizedSemantic);
+describe('Compat: videos', () => {
+  it('video iframe', () => {
+    assertSameHtml(d({ insert: { video: 'https://youtube.com/embed/abc' } }, { insert: '\n' }));
   });
 });
 
