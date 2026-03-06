@@ -132,7 +132,7 @@ function buildLayoutProps(
 
 // ─── Node Override Helpers ─────────────────────────────────────────────────
 
-function renderCodeBlockContainer(node: TNode, cfg: ResolvedReactConfig): ReactNode {
+function renderCodeBlockContainer(node: TNode): ReactNode {
   const { language, lines } = resolveCodeBlockLines(node);
 
   const linesWithNewlines = lines.map((text, i) => (i < lines.length - 1 ? `${text}\n` : text));
@@ -174,7 +174,7 @@ export function buildRendererConfig(
     nodeOverrides: {
       'line-break': () => createElement('br'),
 
-      'code-block-container': (node) => renderCodeBlockContainer(node, cfg),
+      'code-block-container': (node) => renderCodeBlockContainer(node),
     },
 
     blocks: {
