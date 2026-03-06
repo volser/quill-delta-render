@@ -123,6 +123,10 @@ describe('Compat: plain text & paragraphs', () => {
   it('multiple lines in single insert (blockMerger joins with <br/>)', () => {
     assertSameHtml(d({ insert: 'Line 1\nLine 2\nLine 3\n' }));
   });
+
+  it('empty paragraph', () => {
+    assertSameHtml(d({ insert: '\n' }));
+  });
 });
 
 // ─── Headers ────────────────────────────────────────────────────────────────
@@ -152,6 +156,10 @@ describe('Compat: headers', () => {
         { insert: '\n', attributes: { header: 1 } },
       ),
     );
+  });
+
+  it('empty header', () => {
+    assertSameHtml(d({ insert: '\n', attributes: { header: 1 } }));
   });
 });
 
@@ -316,6 +324,10 @@ describe('Compat: lists', () => {
 
   it('unchecked list', () => {
     assertSameHtml(d({ insert: 'Not done' }, { insert: '\n', attributes: { list: 'unchecked' } }));
+  });
+
+  it('empty list item', () => {
+    assertSameHtml(d({ insert: '\n', attributes: { list: 'bullet' } }));
   });
 
   it('mixed checked/unchecked list', () => {
@@ -547,40 +559,6 @@ describe('Compat: complex mixed content', () => {
 // renders the same delta through both pipelines and asserts the specific
 // difference, so we'll catch if either renderer changes behavior.
 // ═════════════════════════════════════════════════════════════════════════════
-
-describe('Parity: empty blocks', () => {
-  // Empty block placeholders are expected to match between renderers.
-
-  it('empty paragraph matches', () => {
-    const delta = d({ insert: '\n' });
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    expect(semantic).toBe('<p><br/></p>');
-    expect(react).toBe('<p><br/></p>');
-    expect(semantic).toBe(react);
-  });
-
-  it('empty header matches', () => {
-    const delta = d({ insert: '\n', attributes: { header: 1 } });
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    expect(semantic).toBe('<h1><br/></h1>');
-    expect(react).toBe('<h1><br/></h1>');
-    expect(semantic).toBe(react);
-  });
-
-  it('empty list item matches', () => {
-    const delta = d({ insert: '\n', attributes: { list: 'bullet' } });
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    expect(semantic).toContain('<br/>');
-    expect(react).toContain('<br/>');
-    expect(semantic).toBe(react);
-  });
-});
 
 describe('Known differences: code block containers', () => {
   // Semantic: <pre>content</pre>
