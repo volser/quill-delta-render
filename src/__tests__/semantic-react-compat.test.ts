@@ -11,8 +11,6 @@
  * Known structural differences (tested separately at the bottom):
  *   - Images: Semantic adds `ql-image` class and omits alt; React has no class but adds `alt=""`
  *   - Videos: Boolean attribute `allowfullscreen="true"` (Semantic) vs `allowfullscreen=""` (React)
- *   - Block layout attributes: Semantic adds `ql-indent-*`, `ql-align-*`, `ql-direction-*` classes;
- *     React does not resolve block attributes by default
  */
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -652,34 +650,24 @@ describe('Known differences: videos', () => {
   });
 });
 
-describe('Known differences: block layout attributes', () => {
-  // Semantic renderer adds ql-indent-*, ql-align-*, ql-direction-* classes.
-  // React renderer does not resolve block attributes by default.
+// ─── Block layout attributes ────────────────────────────────────────────────
 
-  it('indent class only in semantic', () => {
-    const delta = d({ insert: 'indented' }, { insert: '\n', attributes: { indent: 2 } });
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    expect(semantic).toContain('ql-indent-2');
-    expect(react).not.toContain('ql-indent');
+describe('Compat: block layout attributes', () => {
+  it('indent class', () => {
+    assertSameHtml(d({ insert: 'indented' }, { insert: '\n', attributes: { indent: 2 } }));
   });
 
-  it('align class only in semantic', () => {
-    const delta = d({ insert: 'centered' }, { insert: '\n', attributes: { align: 'center' } });
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
-
-    expect(semantic).toContain('ql-align-center');
-    expect(react).not.toContain('ql-align');
+  it('align class', () => {
+    assertSameHtml(d({ insert: 'centered' }, { insert: '\n', attributes: { align: 'center' } }));
   });
 
-  it('direction class only in semantic', () => {
-    const delta = d({ insert: 'rtl' }, { insert: '\n', attributes: { direction: 'rtl' } });
-    const semantic = normalizeHtml(renderSemantic(delta));
-    const react = normalizeHtml(stripReactWrapper(renderReact(delta)));
+  it('direction class', () => {
+    assertSameHtml(d({ insert: 'rtl' }, { insert: '\n', attributes: { direction: 'rtl' } }));
+  });
 
-    expect(semantic).toContain('ql-direction-rtl');
-    expect(react).not.toContain('ql-direction');
+  it('combined align and indent', () => {
+    assertSameHtml(
+      d({ insert: 'text' }, { insert: '\n', attributes: { align: 'right', indent: 1 } }),
+    );
   });
 });

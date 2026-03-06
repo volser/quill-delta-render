@@ -22,6 +22,7 @@ import {
   strikeMark,
   underlineMark,
 } from '../../common/simple-marks';
+import { getLayoutClasses } from '../../html/common/get-layout-classes';
 import type { BlockComponentProps, ResolvedReactConfig } from '../types/react-config';
 import type { ReactProps } from '../types/react-props';
 
@@ -112,6 +113,23 @@ function withEmptyBlockPlaceholder(children: ReactNode): ReactNode {
   return children;
 }
 
+/**
+ * Build a props object with layout classes (indent, align, direction) for a block node.
+ * Returns `null` when there are no layout classes.
+ */
+function buildLayoutProps(
+  node: TNode,
+  cfg: ResolvedReactConfig,
+  skipIndent?: boolean,
+): Record<string, unknown> | null {
+  let classes = getLayoutClasses(node, cfg.classPrefix);
+  if (skipIndent) {
+    const indentPrefix = `${cfg.classPrefix}-indent-`;
+    classes = classes.filter((c) => !c.startsWith(indentPrefix));
+  }
+  return classes.length > 0 ? { className: classes.join(' ') } : null;
+}
+
 // ─── Node Override Helpers ─────────────────────────────────────────────────
 
 function renderCodeBlockContainer(node: TNode, cfg: ResolvedReactConfig): ReactNode {
@@ -162,18 +180,18 @@ export function buildRendererConfig(
     blocks: {
       paragraph: withCustomComponent(cfg, 'paragraph', (node, children) => {
         const tag = resolveTag(cfg, 'paragraph', node, 'p');
-        return createElement(tag, null, withEmptyBlockPlaceholder(children));
+        return createElement(tag, buildLayoutProps(node, cfg), withEmptyBlockPlaceholder(children));
       }),
 
       header: withCustomComponent(cfg, 'header', (node, children) => {
         const level = getHeaderLevel(node);
         const tag = resolveTag(cfg, 'header', node, `h${level}`);
-        return createElement(tag, null, withEmptyBlockPlaceholder(children));
+        return createElement(tag, buildLayoutProps(node, cfg), withEmptyBlockPlaceholder(children));
       }),
 
       blockquote: withCustomComponent(cfg, 'blockquote', (node, children) => {
         const tag = resolveTag(cfg, 'blockquote', node, 'blockquote');
-        return createElement(tag, null, withEmptyBlockPlaceholder(children));
+        return createElement(tag, buildLayoutProps(node, cfg), withEmptyBlockPlaceholder(children));
       }),
 
       'code-block': withCustomComponent(cfg, 'code-block', {
@@ -194,7 +212,9 @@ export function buildRendererConfig(
       'list-item': withCustomComponent(cfg, 'list-item', {
         resolve: (node) => resolveCheckedState(node),
         render: (checked, node, children) => {
-          const props: Record<string, unknown> = {};
+          const props: Record<string, unknown> = {
+            ...buildLayoutProps(node, cfg, true),
+          };
           if (checked !== undefined) props['data-checked'] = checked;
           const tag = resolveTag(cfg, 'list-item', node, 'li');
           return createElement(
