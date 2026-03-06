@@ -45,8 +45,10 @@ function renderReact(delta: Delta): string {
  * via `renderToStaticMarkup(createElement('div', null, element))`.
  */
 function stripReactWrapper(html: string): string {
-  const match = html.match(/^<div>(.*)<\/div>$/s);
-  return match ? match[1]! : html;
+  // React 19 may prepend <link rel="preload"> tags for images — strip them
+  const stripped = html.replace(/<link[^>]*\/>/g, '');
+  const match = stripped.match(/^<div>(.*)<\/div>$/s);
+  return match ? match[1]! : stripped;
 }
 
 /**
