@@ -66,7 +66,7 @@ const html = new SemanticHtmlRenderer().render(ast);
 
 ### React — no `dangerouslySetInnerHTML`
 
-Render Deltas directly into a React component tree. Override any block with your own component:
+Render Deltas directly into a React component tree. By default, it outputs standard HTML tags (`<p>`, `<h1>`, `<strong>`, etc.). You can override any block with your own component:
 
 ```tsx
 import { parseQuillDelta } from 'quill-delta-renderer';
@@ -214,6 +214,24 @@ const ast = parseQuillDelta(delta, {
 });
 ```
 
+### Handling custom embeds
+
+Quill allows custom embeds (e.g., a custom video player, a mention, or a poll). To render them, first register the embed type in `parseQuillDelta`, then provide a render handler for your chosen output format:
+
+```ts
+// 1. Tell the parser about your custom block-level embed
+const ast = parseQuillDelta(delta, {
+  blockEmbeds: ['video', 'poll'], // 'video' is default, add yours
+});
+
+// 2. Handle it in your renderer (React example)
+const element = new ReactRenderer({
+  components: {
+    poll: ({ node }) => <Poll id={node.data.id} />,
+  },
+}).render(ast);
+```
+
 ### Writing a custom renderer
 
 For output formats that need HTML-style attribute collection, extend `BaseRenderer`. For simpler formats (plain text, Markdown-like), extend `SimpleRenderer` — you only need two methods:
@@ -244,7 +262,6 @@ Import only what you need — unused renderers are never bundled:
 | `quill-delta-renderer/markdown` | `MarkdownRenderer`, `HtmlMarkdownRenderer`, `BracketMarkdownRenderer` |
 | `quill-delta-renderer/react` | `ReactRenderer` |
 
-<!-- TODO: measure and add exact minified+gzipped sizes per subpath -->
 
 ## Performance
 
@@ -266,6 +283,22 @@ Or run locally:
 ```bash
 npm run demo:dev
 ```
+
+## API documentation
+
+The library is fully typed. We recommend relying on your IDE's IntelliSense to explore the available configuration options, AST node types, and renderer methods.
+
+## Contributing
+
+Contributions are welcome! To get started:
+
+```bash
+npm install
+npm run build
+npm test
+```
+
+Please ensure all tests pass and the code is formatted before submitting a pull request.
 
 ## License
 
