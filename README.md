@@ -15,7 +15,7 @@ If you're using [Quill](https://quilljs.com/), you've likely hit one of these wa
 | Problem | How quill-delta-renderer helps |
 | --- | --- |
 | **"I need to render Deltas on the server."** Quill requires a browser DOM, so SSR in Next.js, Nuxt, or plain Node is painful. | Works in any JavaScript runtime — Node, Deno, Bun, edge functions — no DOM required. |
-| **"I don't want `dangerouslySetInnerHTML` in React."** Injecting raw HTML is a security risk and blocks custom interactivity. | The React renderer produces a native `ReactNode` tree. Swap in your own `<CustomImage>`, `<LinkPreview>`, or any component. |
+| **"My React preview re-renders everything on each edit."** Using `dangerouslySetInnerHTML` replaces the entire DOM subtree whenever the Delta changes — no reconciliation, no partial updates. | The React renderer returns a native `ReactNode` tree. React only updates the nodes that actually changed, and you can swap in custom components like `<CustomImage>` or `<LinkPreview>`. |
 | **"I need to convert Deltas to Markdown."** Mapping rich formatting (colors, underlines, tables) to Markdown is surprisingly hard. | Three Markdown renderers handle this out of the box — strict, HTML-flavored, or bracket-tagged. |
 | **"`quill-delta-to-html` is showing its age."** Older typings, no tree-shaking, and extending it with custom embeds is frustrating. | Modern ESM with subpath exports, strict TypeScript throughout, and an extensible renderer API that makes custom blocks trivial. |
 
