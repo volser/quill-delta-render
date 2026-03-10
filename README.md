@@ -8,6 +8,8 @@
 
 Render rich Quill content as HTML, React components, or Markdown without needing the Quill editor or a browser DOM. Fully tree-shakeable. Zero dependencies. Written in TypeScript.
 
+**[Try the live demo](https://volser.github.io/quill-delta-renderer/)**
+
 ## Why this library?
 
 If you're using [Quill](https://quilljs.com/), you've likely hit one of these walls:
@@ -279,16 +281,6 @@ In those scenarios, `quill-delta-renderer` delivers measurable gains:
 - **React:** 1.5–2.9× faster than `quill-delta-to-react` (2.22× on a realistic mixed-content document)
 
 Full methodology and results: [BENCHMARKS.md](./BENCHMARKS.md)
-
-## Live demo
-
-Try it in the browser: **[volser.github.io/quill-delta-renderer](https://volser.github.io/quill-delta-renderer/)**
-
-Or run locally:
-
-```bash
-npm run demo:dev
-```
 
 ## API documentation
 
