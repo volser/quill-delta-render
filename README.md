@@ -12,24 +12,24 @@ Render rich Quill content as HTML, React components, or Markdown without needing
 
 If you're using [Quill](https://quilljs.com/), you've likely hit one of these walls:
 
-| Problem | How quill-delta-renderer helps |
-| --- | --- |
-| **"I need to render Deltas on the server."** Quill requires a browser DOM, so SSR in Next.js, Nuxt, or plain Node is painful. | Works in any JavaScript runtime — Node, Deno, Bun, edge functions — no DOM required. |
+| Problem                                                                                                                                                                                        | How quill-delta-renderer helps                                                                                                                                                           |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **"I need to render Deltas on the server."** Quill requires a browser DOM, so SSR in Next.js, Nuxt, or plain Node is painful.                                                                  | Works in any JavaScript runtime — Node, Deno, Bun, edge functions — no DOM required.                                                                                                     |
 | **"My React preview re-renders everything on each edit."** Using `dangerouslySetInnerHTML` replaces the entire DOM subtree whenever the Delta changes — no reconciliation, no partial updates. | The React renderer returns a native `ReactNode` tree. React only updates the nodes that actually changed, and you can swap in custom components like `<CustomImage>` or `<LinkPreview>`. |
-| **"I need to convert Deltas to Markdown."** Mapping rich formatting (colors, underlines, tables) to Markdown is surprisingly hard. | Three Markdown renderers handle this out of the box — strict, HTML-flavored, or bracket-tagged. |
-| **"`quill-delta-to-html` is showing its age."** Older typings, no tree-shaking, and extending it with custom embeds is frustrating. | Modern ESM with subpath exports, strict TypeScript throughout, and an extensible renderer API that makes custom blocks trivial. |
+| **"I need to convert Deltas to Markdown."** Mapping rich formatting (colors, underlines, tables) to Markdown is surprisingly hard.                                                             | Three Markdown renderers handle this out of the box — strict, HTML-flavored, or bracket-tagged.                                                                                          |
+| **"Adding a custom embed or block type is way too hard."** Extending older converters often means monkey-patching or forking.                                                                  | An extensible renderer API with full TypeScript autocomplete — register a custom block handler in a few lines.                                                                           |
 
 ## At a glance
 
 ```ts
-import { parseQuillDelta } from 'quill-delta-renderer';
-import { SemanticHtmlRenderer } from 'quill-delta-renderer/html';
+import { parseQuillDelta } from "quill-delta-renderer";
+import { SemanticHtmlRenderer } from "quill-delta-renderer/html";
 
 const delta = {
   ops: [
-    { insert: 'Hello' },
-    { insert: ', world!', attributes: { bold: true } },
-    { insert: '\n' },
+    { insert: "Hello" },
+    { insert: ", world!", attributes: { bold: true } },
+    { insert: "\n" },
   ],
 };
 
@@ -56,8 +56,8 @@ npm install react react-dom
 ### HTML (server or client)
 
 ```ts
-import { parseQuillDelta } from 'quill-delta-renderer';
-import { SemanticHtmlRenderer } from 'quill-delta-renderer/html';
+import { parseQuillDelta } from "quill-delta-renderer";
+import { SemanticHtmlRenderer } from "quill-delta-renderer/html";
 
 const ast = parseQuillDelta(delta);
 const html = new SemanticHtmlRenderer().render(ast);
@@ -68,8 +68,8 @@ const html = new SemanticHtmlRenderer().render(ast);
 Render Deltas directly into a React component tree. By default, it outputs standard HTML tags (`<p>`, `<h1>`, `<strong>`, etc.). You can override any block with your own component:
 
 ```tsx
-import { parseQuillDelta } from 'quill-delta-renderer';
-import { ReactRenderer } from 'quill-delta-renderer/react';
+import { parseQuillDelta } from "quill-delta-renderer";
+import { ReactRenderer } from "quill-delta-renderer/react";
 
 const renderer = new ReactRenderer({
   components: {
@@ -90,18 +90,18 @@ Every block type (`paragraph`, `header`, `blockquote`, `code-block`, `list`, `li
 ### Markdown
 
 ```ts
-import { parseQuillDelta } from 'quill-delta-renderer';
-import { MarkdownRenderer } from 'quill-delta-renderer/markdown';
+import { parseQuillDelta } from "quill-delta-renderer";
+import { MarkdownRenderer } from "quill-delta-renderer/markdown";
 
 const md = new MarkdownRenderer().render(parseQuillDelta(delta));
 ```
 
 Three flavors are available:
 
-| Renderer | Non-standard formats (underline, color, etc.) |
-| --- | --- |
-| `MarkdownRenderer` | Stripped — strict standard Markdown only |
-| `HtmlMarkdownRenderer` | Rendered as inline HTML (`<u>`, `<sub>`, `<span>`) |
+| Renderer                  | Non-standard formats (underline, color, etc.)             |
+| ------------------------- | --------------------------------------------------------- |
+| `MarkdownRenderer`        | Stripped — strict standard Markdown only                  |
+| `HtmlMarkdownRenderer`    | Rendered as inline HTML (`<u>`, `<sub>`, `<span>`)        |
 | `BracketMarkdownRenderer` | Rendered as bracket tags (`[STYLE color=red]...[/STYLE]`) |
 
 See the format docs: [HTML Markdown](docs/markdown-html-format.md) · [Bracket Markdown](docs/markdown-bracket-format.md)
@@ -113,7 +113,7 @@ See the format docs: [HTML Markdown](docs/markdown-html-format.md) · [Bracket M
 **Before:**
 
 ```ts
-import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html';
+import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
 
 const converter = new QuillDeltaToHtmlConverter(delta.ops, {});
 const html = converter.convert();
@@ -122,8 +122,8 @@ const html = converter.convert();
 **After:**
 
 ```ts
-import { parseQuillDelta } from 'quill-delta-renderer';
-import { SemanticHtmlRenderer } from 'quill-delta-renderer/html';
+import { parseQuillDelta } from "quill-delta-renderer";
+import { SemanticHtmlRenderer } from "quill-delta-renderer/html";
 
 const html = new SemanticHtmlRenderer().render(parseQuillDelta(delta));
 ```
@@ -145,13 +145,15 @@ All renderers accept an optional config object. Every option has a sensible defa
 
 ```ts
 new SemanticHtmlRenderer({
-  classPrefix: 'ql',       // CSS class prefix (default: 'ql')
-  paragraphTag: 'p',       // Tag for paragraphs (default: 'p')
-  linkTarget: '_blank',    // Link target attribute (default: '_blank')
-  linkRel: 'noopener',     // Link rel attribute
-  inlineStyles: false,     // Use inline styles instead of classes
-  encodeHtml: true,        // HTML-encode text content (default: true)
-  customTag: (fmt, node) => { /* return a custom tag string or undefined */ },
+  classPrefix: "ql", // CSS class prefix (default: 'ql')
+  paragraphTag: "p", // Tag for paragraphs (default: 'p')
+  linkTarget: "_blank", // Link target attribute (default: '_blank')
+  linkRel: "noopener", // Link rel attribute
+  inlineStyles: false, // Use inline styles instead of classes
+  encodeHtml: true, // HTML-encode text content (default: true)
+  customTag: (fmt, node) => {
+    /* return a custom tag string or undefined */
+  },
 });
 ```
 
@@ -159,10 +161,12 @@ new SemanticHtmlRenderer({
 
 ```tsx
 new ReactRenderer({
-  classPrefix: 'ql',
-  linkTarget: '_blank',
-  linkRel: 'noopener',
-  customTag: (fmt, node) => { /* return a custom tag string or undefined */ },
+  classPrefix: "ql",
+  linkTarget: "_blank",
+  linkRel: "noopener",
+  customTag: (fmt, node) => {
+    /* return a custom tag string or undefined */
+  },
   components: {
     image: ({ node }) => <CustomImage src={node.data} />,
     // override any block type
@@ -174,10 +178,14 @@ new ReactRenderer({
 
 ````ts
 new MarkdownRenderer({
-  bulletChar: '*',         // Unordered list character (default: '*')
-  fenceChar: '```',        // Fenced code block delimiter (default: '```')
-  embedHandler: (node) => { /* return string for custom embeds */ },
-  embedAttributesHandler: (node) => { /* return { key: value } for attribute-only embeds */ },
+  bulletChar: "*", // Unordered list character (default: '*')
+  fenceChar: "```", // Fenced code block delimiter (default: '```')
+  embedHandler: (node) => {
+    /* return string for custom embeds */
+  },
+  embedAttributesHandler: (node) => {
+    /* return { key: value } for attribute-only embeds */
+  },
 });
 ````
 
@@ -201,7 +209,7 @@ parseQuillDelta(delta, {
 A transformer is a function that receives the AST's children array and returns a new array. Use this to group, wrap, or reorganize nodes before rendering:
 
 ```ts
-import type { TNode, Transformer } from 'quill-delta-renderer/core';
+import type { TNode, Transformer } from "quill-delta-renderer/core";
 
 const imageGallery: Transformer = (children: TNode[]) => {
   // group adjacent images into a gallery container
@@ -236,11 +244,11 @@ const element = new ReactRenderer({
 For output formats that need HTML-style attribute collection, extend `BaseRenderer`. For simpler formats (plain text, Markdown-like), extend `SimpleRenderer` — you only need two methods:
 
 ```ts
-import { SimpleRenderer } from 'quill-delta-renderer/core';
+import { SimpleRenderer } from "quill-delta-renderer/core";
 
 class PlainTextRenderer extends SimpleRenderer<string> {
   protected joinChildren(children: string[]) {
-    return children.join('');
+    return children.join("");
   }
   protected renderText(text: string) {
     return text;
@@ -252,15 +260,14 @@ class PlainTextRenderer extends SimpleRenderer<string> {
 
 Import only what you need — unused renderers are never bundled:
 
-| Import path | Contents |
-| --- | --- |
-| `quill-delta-renderer` | Barrel export including `parseQuillDelta` |
-| `quill-delta-renderer/core` | `parseDelta`, `BaseRenderer`, `SimpleRenderer`, types |
-| `quill-delta-renderer/common` | Transformers, sanitizers, shared utilities |
-| `quill-delta-renderer/html` | `SemanticHtmlRenderer`, `QuillHtmlRenderer` |
+| Import path                     | Contents                                                              |
+| ------------------------------- | --------------------------------------------------------------------- |
+| `quill-delta-renderer`          | Barrel export including `parseQuillDelta`                             |
+| `quill-delta-renderer/core`     | `parseDelta`, `BaseRenderer`, `SimpleRenderer`, types                 |
+| `quill-delta-renderer/common`   | Transformers, sanitizers, shared utilities                            |
+| `quill-delta-renderer/html`     | `SemanticHtmlRenderer`, `QuillHtmlRenderer`                           |
 | `quill-delta-renderer/markdown` | `MarkdownRenderer`, `HtmlMarkdownRenderer`, `BracketMarkdownRenderer` |
-| `quill-delta-renderer/react` | `ReactRenderer` |
-
+| `quill-delta-renderer/react`    | `ReactRenderer`                                                       |
 
 ## Performance
 
