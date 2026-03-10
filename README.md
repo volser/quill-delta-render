@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/volser/quill-delta-renderer/actions/workflows/ci.yml/badge.svg)](https://github.com/volser/quill-delta-renderer/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/quill-delta-renderer)](https://www.npmjs.com/package/quill-delta-renderer)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/quill-delta-renderer)](https://bundlephobia.com/package/quill-delta-renderer)
 [![license](https://img.shields.io/npm/l/quill-delta-renderer)](./LICENSE)
 
 **The modern, type-safe way to render Quill Deltas anywhere — server, client, or CLI.**
