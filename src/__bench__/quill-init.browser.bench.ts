@@ -9,7 +9,6 @@
 import Quill from 'quill';
 import { bench, describe } from 'vitest';
 import type { Delta } from '../core/ast-types';
-import { parseQuillDelta } from '../parse-quill-delta';
 import { QuillHtmlRenderer } from '../renderers/html/quill/quill-html-renderer';
 import {
   CODE_BLOCKS,
@@ -29,8 +28,7 @@ import {
 const renderer = new QuillHtmlRenderer();
 
 function renderToHtml(delta: Delta): string {
-  const ast = parseQuillDelta(delta);
-  return renderer.render(ast);
+  return renderer.renderDelta(delta);
 }
 
 function benchSuite(name: string, delta: Delta) {

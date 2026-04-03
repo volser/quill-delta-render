@@ -93,6 +93,7 @@
     "format": "biome format --write src/",
     "bench": "vitest bench",
     "bench:browser": "vitest bench --config vitest.browser.config.ts",
+    "test:browser": "vitest run --config vitest.browser.config.ts",
     "typecheck": "tsc --noEmit",
     "check": "biome check src/ && tsc --noEmit",
     "clean": "rm -rf dist",

@@ -49,6 +49,12 @@ describe('Quill compat: basic text', () => {
     assertHtmlMatch({ ops: [{ insert: 'Line 1\nLine 2\nLine 3\n' }] });
   });
 
+  it('multiple paragraphs from separate ops', () => {
+    assertHtmlMatch({
+      ops: [{ insert: 'Line 1\n' }, { insert: 'Line 2\n' }, { insert: 'Line 3\n' }],
+    });
+  });
+
   it('multiple empty paragraphs', () => {
     assertHtmlMatch({ ops: [{ insert: '\n\n\n' }] });
   });

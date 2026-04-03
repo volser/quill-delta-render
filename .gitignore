@@ -5,3 +5,4 @@ demo-dist/
 coverage/
 *.tsbuildinfo
 .DS_Store
+__screenshots__/
