@@ -14,6 +14,7 @@ import {
   CODE_BLOCKS,
   EMBEDS_DOC,
   HEADERS_DOC,
+  HUGE_DOC,
   LARGE_FORMATTED,
   LARGE_PLAIN,
   MEDIUM_FORMATTED,
@@ -81,3 +82,5 @@ benchSuite('Code blocks (5 blocks × 10 lines)', CODE_BLOCKS);
 benchSuite('Embeds (20 images)', EMBEDS_DOC);
 benchSuite('Tables (10 rows × 4 cols)', TABLE_DOC);
 benchSuite('Realistic document (mixed content)', REALISTIC_DOC);
+
+benchSuite('Huge document (50 sections, ~2500 ops)', HUGE_DOC);

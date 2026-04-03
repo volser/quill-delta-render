@@ -151,6 +151,59 @@ function makeRealisticDocument(): Delta {
   return { ops };
 }
 
+function makeHugeDocument(sections: number): Delta {
+  const ops: DeltaOp[] = [];
+  for (let s = 0; s < sections; s++) {
+    ops.push({ insert: `Section ${s + 1}: Feature Overview` });
+    ops.push({ insert: '\n', attributes: { header: 1 } });
+
+    for (let p = 0; p < 3; p++) {
+      ops.push({ insert: 'This is a ' });
+      ops.push({ insert: 'detailed description', attributes: { bold: true } });
+      ops.push({ insert: ' of the feature with ' });
+      ops.push({ insert: 'important notes', attributes: { italic: true, color: '#e60000' } });
+      ops.push({ insert: ' and a ' });
+      ops.push({
+        insert: 'reference link',
+        attributes: { link: `https://docs.example.com/section-${s}`, bold: true },
+      });
+      ops.push({ insert: '. Additional context follows here with enough text to be realistic.\n' });
+    }
+
+    ops.push({ insert: 'Requirements' });
+    ops.push({ insert: '\n', attributes: { header: 2 } });
+    for (let li = 0; li < 5; li++) {
+      ops.push({ insert: `Requirement ${s * 5 + li + 1}: implement the feature correctly` });
+      ops.push({ insert: '\n', attributes: { list: 'bullet' } });
+      ops.push({ insert: `Sub-detail for requirement ${li + 1}` });
+      ops.push({ insert: '\n', attributes: { list: 'bullet', indent: 1 } });
+    }
+
+    ops.push({ insert: 'Implementation' });
+    ops.push({ insert: '\n', attributes: { header: 2 } });
+    for (let l = 0; l < 5; l++) {
+      ops.push({ insert: `  const result${l} = await process(input${l});` });
+      ops.push({ insert: '\n', attributes: { 'code-block': 'typescript' } });
+    }
+
+    ops.push({ insert: 'Test Results' });
+    ops.push({ insert: '\n', attributes: { header: 3 } });
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 4; c++) {
+        ops.push({ insert: `S${s + 1}R${r + 1}C${c + 1}` });
+        ops.push({ insert: '\n', attributes: { table: `row-${s}-${r}` } });
+      }
+    }
+
+    ops.push({
+      insert: `This decision was made after thorough benchmarking and review by the team.`,
+    });
+    ops.push({ insert: '\n', attributes: { blockquote: true } });
+    ops.push({ insert: '\n' });
+  }
+  return { ops };
+}
+
 export const SMALL_PLAIN = makeParagraphs(5);
 export const MEDIUM_PLAIN = makeParagraphs(50);
 export const LARGE_PLAIN = makeParagraphs(500);
@@ -165,3 +218,6 @@ export const CODE_BLOCKS = makeCodeBlocks(5, 10);
 export const EMBEDS_DOC = makeEmbeds(20);
 export const TABLE_DOC = makeTables(10, 4);
 export const REALISTIC_DOC = makeRealisticDocument();
+
+/** ~50 sections × mixed content ≈ 2500+ ops */
+export const HUGE_DOC = makeHugeDocument(50);
