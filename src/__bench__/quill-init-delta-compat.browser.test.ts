@@ -109,9 +109,9 @@ describe('Realistic document — A vs B', () => {
 
 // ─── A vs C: innerHTML + update (MutationObserver path) ─────────────────────
 //
-// Strategy C is the fastest but Quill's MutationObserver doesn't reconstruct
-// the full content model for all content types. These tests document exactly
-// where it works and where it breaks.
+// Strategy C bypasses the clipboard pipeline: Quill's MutationObserver
+// detects the DOM changes and reconstructs the internal content model.
+// All tested content types produce identical HTML and Deltas to setContents.
 
 function testAvsC(name: string, delta: Delta) {
   describe(`${name} — A vs C`, () => {
