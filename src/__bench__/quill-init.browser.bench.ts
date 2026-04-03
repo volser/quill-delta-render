@@ -57,6 +57,15 @@ function benchSuite(name: string, delta: Delta) {
       new Quill(container);
       container.remove();
     });
+
+    bench('Quill init empty + innerHTML + update', () => {
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const quill = new Quill(container);
+      quill.root.innerHTML = renderToHtml(delta);
+      quill.update();
+      container.remove();
+    });
   });
 }
 
