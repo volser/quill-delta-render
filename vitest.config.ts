@@ -6,6 +6,7 @@ export default defineConfig({
     include: ['src/**/*.test.ts'],
     benchmark: {
       include: ['src/**/*.bench.ts'],
+      exclude: ['src/**/*.browser.bench.ts'],
     },
   },
 });
