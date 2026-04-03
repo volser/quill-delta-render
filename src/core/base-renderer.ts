@@ -58,6 +58,7 @@ export abstract class BaseRenderer<Output, Attrs = unknown> {
   protected marks: Record<string, MarkHandler<Output, Attrs> | SimpleTagMark>;
   protected attributors: Record<string, AttributorHandler<Attrs>>;
   protected markPriorities: Record<string, number>;
+  protected attributorTarget: 'innermost' | 'outermost';
   protected blockAttributeResolvers: Array<(node: TNode) => Attrs>;
   protected nodeOverrides: Record<string, NodeOverrideHandler<Output>>;
   protected onUnknownNode: ((node: TNode) => Output | undefined) | undefined;
@@ -67,6 +68,7 @@ export abstract class BaseRenderer<Output, Attrs = unknown> {
     this.marks = { ...config.marks };
     this.attributors = { ...config.attributors };
     this.markPriorities = { ...config.markPriorities };
+    this.attributorTarget = config.attributorTarget ?? 'innermost';
     this.blockAttributeResolvers = [...(config.blockAttributeResolvers ?? [])];
     this.nodeOverrides = { ...config.nodeOverrides };
     this.onUnknownNode = config.onUnknownNode;
@@ -153,6 +155,7 @@ export abstract class BaseRenderer<Output, Attrs = unknown> {
     clone.marks = { ...this.marks };
     clone.attributors = { ...this.attributors };
     clone.markPriorities = { ...this.markPriorities };
+    clone.attributorTarget = this.attributorTarget;
     clone.blockAttributeResolvers = [...this.blockAttributeResolvers];
     clone.nodeOverrides = { ...this.nodeOverrides };
     clone.onUnknownNode = this.onUnknownNode;
@@ -203,7 +206,7 @@ export abstract class BaseRenderer<Output, Attrs = unknown> {
    *
    * @param tag - The resolved tag name
    * @param content - The already-rendered inner content
-   * @param collectedAttrs - Optional attrs from attributors (only for innermost mark)
+   * @param collectedAttrs - Optional attrs from attributors (only for target mark)
    */
   protected abstract renderSimpleTag(tag: string, content: Output, collectedAttrs?: Attrs): Output;
 
@@ -304,11 +307,12 @@ export abstract class BaseRenderer<Output, Attrs = unknown> {
     const hasCollected = this.hasAttrs(collectedAttrs);
 
     if (elementMarks.length > 0) {
+      const attrTargetIdx = this.attributorTarget === 'outermost' ? elementMarks.length - 1 : 0;
+
       // Apply element marks from innermost to outermost
       for (const [i, entry] of elementMarks.entries()) {
         const { mark, value } = entry;
-        // Only the innermost mark (i === 0) receives collected attrs
-        const attrs = i === 0 && hasCollected ? collectedAttrs : undefined;
+        const attrs = i === attrTargetIdx && hasCollected ? collectedAttrs : undefined;
 
         if (isSimpleTagMark(mark)) {
           const tag = typeof mark.tag === 'function' ? mark.tag(value) : mark.tag;

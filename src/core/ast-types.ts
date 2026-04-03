@@ -182,7 +182,8 @@ export interface BlockDescriptor {
  * @param value - The attribute value (e.g. href for links, color hex for color)
  * @param node - The full AST node for additional context
  * @param collectedAttrs - Attributes collected from attributor marks.
- *   Only provided to the **innermost** element mark.
+ *   Only provided to the target element mark (innermost or outermost,
+ *   controlled by {@link RendererConfig.attributorTarget}).
  * @returns The wrapped/decorated output
  */
 export type MarkHandler<Output, Attrs = unknown> = (
@@ -282,6 +283,16 @@ export interface RendererConfig<Output, Attrs = unknown> {
   attributors?: Record<string, AttributorHandler<Attrs>>;
   /** Optional mark nesting priorities. Higher value = wraps outer. */
   markPriorities?: Record<string, number>;
+  /**
+   * Which element mark receives collected attributor attrs.
+   *
+   * - `'innermost'` (default) — attributor styles/classes go on the innermost
+   *   element mark (lowest priority). This matches `quill-delta-to-html` behavior.
+   * - `'outermost'` — attributor styles/classes go on the outermost element
+   *   mark (highest priority). This matches Quill editor's native DOM output,
+   *   where `StyleAttributor`s apply to the outermost formatting blot.
+   */
+  attributorTarget?: 'innermost' | 'outermost';
   /** Block attribute resolvers — compute generic attrs for all blocks */
   blockAttributeResolvers?: BlockAttributeResolver<Attrs>[];
   /**

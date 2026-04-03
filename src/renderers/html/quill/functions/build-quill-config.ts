@@ -65,6 +65,7 @@ const QUILL_MARK_PRIORITIES: Record<string, number> = {
 export function buildQuillConfig(): RendererConfig<string, ResolvedAttrs> {
   return {
     markPriorities: QUILL_MARK_PRIORITIES,
+    attributorTarget: 'outermost',
 
     nodeOverrides: {
       'line-break': () => '<br/>',

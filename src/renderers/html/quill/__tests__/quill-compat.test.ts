@@ -473,6 +473,19 @@ describe('Quill compat: complex mixed content', () => {
     });
   });
 
+  it('colored bold link (color + link + bold on same text)', () => {
+    assertHtmlMatch({
+      ops: [
+        { insert: 'before ' },
+        {
+          insert: 'colored link',
+          attributes: { link: 'https://example.com', color: '#ff0000', bold: true },
+        },
+        { insert: ' after\n' },
+      ],
+    });
+  });
+
   it('header with inline formatting', () => {
     assertHtmlMatch({
       ops: [
