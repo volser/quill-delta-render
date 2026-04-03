@@ -34,8 +34,6 @@ function renderToHtml(delta: Delta): string {
 }
 
 function benchSuite(name: string, delta: Delta) {
-  const preRenderedHtml = renderToHtml(delta);
-
   describe(name, () => {
     bench('Quill setContents', () => {
       const container = document.createElement('div');
@@ -45,23 +43,17 @@ function benchSuite(name: string, delta: Delta) {
       container.remove();
     });
 
-    bench('QuillHtmlRenderer — render only', () => {
-      renderToHtml(delta);
-    });
-
-    bench('Init Quill on pre-rendered HTML', () => {
+    bench('QuillHtmlRenderer — render + inject DOM', () => {
       const container = document.createElement('div');
-      container.innerHTML = preRenderedHtml;
       document.body.appendChild(container);
-      new Quill(container);
+      container.innerHTML = renderToHtml(delta);
       container.remove();
     });
 
     bench('Render + Init Quill (total)', () => {
       const container = document.createElement('div');
-      const html = renderToHtml(delta);
-      container.innerHTML = html;
       document.body.appendChild(container);
+      container.innerHTML = renderToHtml(delta);
       new Quill(container);
       container.remove();
     });
