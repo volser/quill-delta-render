@@ -12,6 +12,7 @@
 import Quill from 'quill';
 import { describe, expect, it } from 'vitest';
 import type { Delta } from '../core/ast-types';
+import { normalizeHtml } from '../renderers/html/quill/__tests__/normalize-html';
 import { QuillHtmlRenderer } from '../renderers/html/quill/quill-html-renderer';
 import {
   CODE_BLOCKS,
@@ -25,17 +26,6 @@ import {
 } from './bench-fixtures';
 
 const renderer = new QuillHtmlRenderer();
-
-function normalizeAttrOrder(html: string): string {
-  return html.replace(/<(\w+)((?:\s+[\w-]+="[^"]*")+)/g, (_match, tag, attrs: string) => {
-    const sorted = attrs
-      .trim()
-      .match(/[\w-]+="[^"]*"/g)!
-      .sort()
-      .join(' ');
-    return `<${tag} ${sorted}`;
-  });
-}
 
 function renderToHtml(delta: Delta): string {
   return renderer.renderDelta(delta);
@@ -74,7 +64,7 @@ function testAvsB(name: string, delta: Delta) {
       const a = initWithSetContents(delta);
       const b = initWithPreRenderedHtml(delta);
 
-      expect(b.quill.root.innerHTML).toEqual(a.quill.root.innerHTML);
+      expect(normalizeHtml(b.quill.root.innerHTML)).toEqual(normalizeHtml(a.quill.root.innerHTML));
       expect(b.quill.getContents().ops).toEqual(a.quill.getContents().ops);
 
       a.container.remove();
@@ -129,7 +119,7 @@ function testAvsC(name: string, delta: Delta) {
       const a = initWithSetContents(delta);
       const c = initWithInnerHtmlUpdate(delta);
 
-      expect(c.quill.root.innerHTML).toEqual(a.quill.root.innerHTML);
+      expect(normalizeHtml(c.quill.root.innerHTML)).toEqual(normalizeHtml(a.quill.root.innerHTML));
       expect(c.quill.getContents().ops).toEqual(a.quill.getContents().ops);
 
       a.container.remove();
@@ -139,39 +129,9 @@ function testAvsC(name: string, delta: Delta) {
 }
 
 testAvsC('Plain text — 5 paragraphs', SMALL_PLAIN);
+testAvsC('Formatted text — 5 blocks', SMALL_FORMATTED);
 testAvsC('Headers with body text', HEADERS_DOC);
 testAvsC('Embeds (20 images)', EMBEDS_DOC);
 testAvsC('Tables (10 rows × 4 cols)', TABLE_DOC);
 
-// These content types fail with innerHTML + update because Quill's
-// MutationObserver doesn't fully reconstruct block structure from raw DOM.
-
-// Renderer places color on <a> instead of <strong> wrapper, causing Quill's
-// optimize to merge adjacent <strong> blots that should stay separate.
-// This is a renderer issue to fix separately.
-describe('Formatted text — A vs C', () => {
-  it.fails('C differs due to color style placement on <a> vs <strong>', () => {
-    const a = initWithSetContents(SMALL_FORMATTED);
-    const c = initWithInnerHtmlUpdate(SMALL_FORMATTED);
-    expect(c.quill.root.innerHTML).toEqual(a.quill.root.innerHTML);
-    a.container.remove();
-    c.container.remove();
-  });
-});
-
-// Content is identical — only attribute order on <li> differs
-// (class before data-list vs data-list before class).
-describe('Nested lists — A vs C', () => {
-  it('C matches A (normalizing attribute order)', () => {
-    const a = initWithSetContents(NESTED_LIST);
-    const c = initWithInnerHtmlUpdate(NESTED_LIST);
-
-    expect(normalizeAttrOrder(c.quill.root.innerHTML)).toEqual(
-      normalizeAttrOrder(a.quill.root.innerHTML),
-    );
-    expect(c.quill.getContents().ops).toEqual(a.quill.getContents().ops);
-
-    a.container.remove();
-    c.container.remove();
-  });
-});
+testAvsC('Nested lists (5 levels × 4 items)', NESTED_LIST);
